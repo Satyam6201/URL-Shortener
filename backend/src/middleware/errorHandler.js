@@ -2,6 +2,14 @@ import { logger } from '../utils/logger.js';
 import { config } from '../config/env.js';
 
 export function errorHandler(err, req, res, next) {
+  if (err.code === 11000) {
+    const key = Object.keys(err.keyPattern || err.keyValue || {})[0] || 'field';
+    return res.status(409).json({
+      success: false,
+      error: `An entry with this ${key} already exists`,
+    });
+  }
+
   const statusCode = err.statusCode || (res.statusCode !== 200 ? res.statusCode : 500);
 
   if (statusCode >= 500) {
