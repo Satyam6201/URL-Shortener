@@ -137,9 +137,9 @@ export function HomeFeatures({ onSelectTab, onOpenAuth, user }) {
           {metrics.map((m, idx) => (
             <div
               key={idx}
-              className="p-5 sm:p-6 rounded-3xl bg-white/80 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800/80 backdrop-blur-xl shadow-sm hover:shadow-md hover:border-teal-500/40 dark:hover:border-teal-500/40 transition-all duration-200 group"
+              className="p-5 sm:p-6 rounded-3xl bg-white/80 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800/80 backdrop-blur-xl shadow-sm hover:shadow-xl hover:shadow-teal-500/10 hover:border-teal-500/50 hover:-translate-y-1.5 transition-all duration-300 group cursor-default"
             >
-              <div className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 dark:text-white font-mono group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors">
+              <div className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 dark:text-white font-mono group-hover:text-teal-600 dark:group-hover:text-teal-400 group-hover:scale-105 transition-all duration-200 origin-left">
                 {m.value}
               </div>
               <div className="text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-200 mt-1">
@@ -155,7 +155,7 @@ export function HomeFeatures({ onSelectTab, onOpenAuth, user }) {
 
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         <div className="text-center max-w-3xl mx-auto space-y-3">
-          <span className="px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-teal-500/10 text-teal-700 dark:text-teal-400 border border-teal-500/20">
+          <span className="px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-teal-500/10 text-teal-700 dark:text-teal-400 border border-teal-500/20 shadow-sm">
             Engineered For Speed & Control
           </span>
           <h2 className="text-2xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight">
@@ -172,21 +172,21 @@ export function HomeFeatures({ onSelectTab, onOpenAuth, user }) {
             return (
               <div
                 key={idx}
-                className="p-6 sm:p-7 rounded-3xl bg-white/90 dark:bg-slate-900/70 border border-slate-200/90 dark:border-slate-800/80 shadow-md shadow-slate-900/5 dark:shadow-none hover:shadow-xl hover:border-teal-500/30 dark:hover:border-teal-500/30 transition-all duration-300 flex flex-col justify-between group"
+                className="p-6 sm:p-7 rounded-3xl bg-white/90 dark:bg-slate-900/70 border border-slate-200/90 dark:border-slate-800/80 shadow-md shadow-slate-900/5 dark:shadow-none hover:shadow-2xl hover:shadow-teal-500/10 hover:border-teal-500/50 hover:-translate-y-2 transition-all duration-300 flex flex-col justify-between group cursor-default"
               >
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div
-                      className={`w-12 h-12 rounded-2xl flex items-center justify-center border shadow-sm ${feat.color}`}
+                      className={`w-12 h-12 rounded-2xl flex items-center justify-center border shadow-sm ${feat.color} group-hover:scale-110 group-hover:rotate-3 group-hover:shadow-md transition-all duration-300`}
                     >
                       <Icon className="w-6 h-6 stroke-[2]" />
                     </div>
-                    <span className="text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
+                    <span className="text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 group-hover:bg-teal-500/10 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors duration-200">
                       {feat.pill}
                     </span>
                   </div>
 
-                  <h3 className="text-lg font-bold text-slate-900 dark:text-white group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors">
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-white group-hover:text-teal-600 dark:group-hover:text-teal-400 group-hover:translate-x-0.5 transition-all duration-200">
                     {feat.title}
                   </h3>
 
@@ -202,7 +202,7 @@ export function HomeFeatures({ onSelectTab, onOpenAuth, user }) {
 
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         <div className="text-center max-w-2xl mx-auto space-y-3">
-          <span className="px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-teal-500/10 text-teal-700 dark:text-teal-400 border border-teal-500/20">
+          <span className="px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-teal-500/10 text-teal-700 dark:text-teal-400 border border-teal-500/20 shadow-sm">
             Frictionless Experience
           </span>
           <h2 className="text-2xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight">
@@ -214,31 +214,31 @@ export function HomeFeatures({ onSelectTab, onOpenAuth, user }) {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
-          <div className="p-7 rounded-3xl bg-white/90 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-4">
-            <div className="w-10 h-10 rounded-2xl bg-teal-500/10 text-teal-600 dark:text-teal-400 font-mono font-black text-sm flex items-center justify-center border border-teal-500/20">
+          <div className="p-7 rounded-3xl bg-white/90 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 hover:border-teal-500/50 hover:shadow-xl hover:shadow-teal-500/10 hover:-translate-y-1.5 transition-all duration-300 space-y-4 group">
+            <div className="w-10 h-10 rounded-2xl bg-teal-500/10 text-teal-600 dark:text-teal-400 font-mono font-black text-sm flex items-center justify-center border border-teal-500/20 group-hover:scale-110 group-hover:bg-teal-500/20 transition-all duration-200">
               01
             </div>
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white">Paste & Auto-Suggest</h3>
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors">Paste & Auto-Suggest</h3>
             <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
               Drop in any destination URL. Our Google Gemini integration scans safety and generates memorable, high-converting slug suggestions.
             </p>
           </div>
 
-          <div className="p-7 rounded-3xl bg-white/90 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-4">
-            <div className="w-10 h-10 rounded-2xl bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 font-mono font-black text-sm flex items-center justify-center border border-cyan-500/20">
+          <div className="p-7 rounded-3xl bg-white/90 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 hover:border-cyan-500/50 hover:shadow-xl hover:shadow-cyan-500/10 hover:-translate-y-1.5 transition-all duration-300 space-y-4 group">
+            <div className="w-10 h-10 rounded-2xl bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 font-mono font-black text-sm flex items-center justify-center border border-cyan-500/20 group-hover:scale-110 group-hover:bg-cyan-500/20 transition-all duration-200">
               02
             </div>
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white">Configure Rules</h3>
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors">Configure Rules</h3>
             <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
               Add optional passcodes, click expiration caps, self-destructing burn links, or route visitors dynamically by iOS, Android, or country.
             </p>
           </div>
 
-          <div className="p-7 rounded-3xl bg-white/90 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-4">
-            <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-mono font-black text-sm flex items-center justify-center border border-emerald-500/20">
+          <div className="p-7 rounded-3xl bg-white/90 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 hover:border-emerald-500/50 hover:shadow-xl hover:shadow-emerald-500/10 hover:-translate-y-1.5 transition-all duration-300 space-y-4 group">
+            <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-mono font-black text-sm flex items-center justify-center border border-emerald-500/20 group-hover:scale-110 group-hover:bg-emerald-500/20 transition-all duration-200">
               03
             </div>
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white">Share & Track Live</h3>
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">Share & Track Live</h3>
             <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
               Distribute short links or print QR codes. Monitor clicks in real-time on the live telemetry feed with verified human traffic filtering.
             </p>
@@ -248,7 +248,7 @@ export function HomeFeatures({ onSelectTab, onOpenAuth, user }) {
 
       <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         <div className="text-center space-y-2">
-          <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">
+          <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
             Why SnipURL Outperforms Traditional Shorteners
           </h2>
           <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
@@ -256,19 +256,19 @@ export function HomeFeatures({ onSelectTab, onOpenAuth, user }) {
           </p>
         </div>
 
-        <div className="rounded-3xl bg-white/90 dark:bg-slate-900/70 border border-slate-200/90 dark:border-slate-800/80 overflow-hidden shadow-xl shadow-slate-900/5">
+        <div className="rounded-3xl bg-white/90 dark:bg-slate-900/70 border border-slate-200/90 dark:border-slate-800/80 overflow-hidden shadow-xl shadow-slate-900/5 hover:border-teal-500/40 transition-all duration-300">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs sm:text-sm">
               <thead className="bg-slate-50 dark:bg-slate-950 text-slate-600 dark:text-slate-400 uppercase font-mono text-[11px] border-b border-slate-200 dark:border-slate-800">
                 <tr>
                   <th className="px-5 py-4 font-bold">Feature</th>
                   <th className="px-5 py-4 font-bold text-slate-400">Legacy Shorteners</th>
-                  <th className="px-5 py-4 font-bold text-teal-600 dark:text-teal-400">SnipURL Fast Edge</th>
+                  <th className="px-5 py-4 font-bold text-teal-600 dark:text-teal-400 bg-teal-500/5">SnipURL Fast Edge</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 font-sans">
                 {comparison.map((row, i) => (
-                  <tr key={i} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/40 transition-colors">
+                  <tr key={i} className="hover:bg-teal-500/[0.04] dark:hover:bg-slate-800/50 transition-colors duration-150">
                     <td className="px-5 py-4 font-bold text-slate-900 dark:text-white">
                       {row.feature}
                     </td>
@@ -276,10 +276,10 @@ export function HomeFeatures({ onSelectTab, onOpenAuth, user }) {
                       <XCircle className="w-4 h-4 text-rose-500 flex-shrink-0 mt-0.5" />
                       <span>{row.traditional}</span>
                     </td>
-                    <td className="px-5 py-4 text-slate-800 dark:text-slate-200 font-medium">
+                    <td className="px-5 py-4 text-slate-800 dark:text-slate-200 font-medium bg-teal-500/[0.02]">
                       <div className="flex items-start space-x-2">
                         <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5" />
-                        <span>{row.snipurl}</span>
+                        <span className="font-semibold text-slate-900 dark:text-white">{row.snipurl}</span>
                       </div>
                     </td>
                   </tr>
@@ -292,7 +292,7 @@ export function HomeFeatures({ onSelectTab, onOpenAuth, user }) {
 
       <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         <div className="text-center space-y-2">
-          <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">
+          <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
             Frequently Asked Questions
           </h2>
           <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
@@ -304,16 +304,20 @@ export function HomeFeatures({ onSelectTab, onOpenAuth, user }) {
           {faqs.map((faq, idx) => (
             <div
               key={idx}
-              className="rounded-2xl bg-white/80 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 overflow-hidden transition-all duration-200 shadow-sm"
+              className={`rounded-2xl border transition-all duration-200 shadow-sm overflow-hidden ${
+                openFaq === idx
+                  ? 'bg-white dark:bg-slate-900/90 border-teal-500/50 shadow-md shadow-teal-500/5'
+                  : 'bg-white/80 dark:bg-slate-900/60 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
+              }`}
             >
               <button
                 type="button"
                 onClick={() => toggleFaq(idx)}
                 className="w-full px-5 py-4 text-left flex items-center justify-between text-slate-900 dark:text-white font-bold text-sm sm:text-base cursor-pointer hover:text-teal-600 dark:hover:text-teal-400 transition-colors"
               >
-                <span>{faq.q}</span>
+                <span className="pr-4">{faq.q}</span>
                 <ChevronDown
-                  className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${
+                  className={`w-4 h-4 text-slate-400 transition-transform duration-200 flex-shrink-0 ${
                     openFaq === idx ? 'rotate-180 text-teal-600 dark:text-teal-400' : ''
                   }`}
                 />
@@ -330,12 +334,12 @@ export function HomeFeatures({ onSelectTab, onOpenAuth, user }) {
       </section>
 
       <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="relative rounded-3xl overflow-hidden bg-gradient-to-r from-teal-500 via-emerald-500 to-cyan-500 p-8 sm:p-12 text-slate-950 flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl shadow-teal-500/20">
+        <div className="relative rounded-3xl overflow-hidden bg-gradient-to-r from-teal-500 via-emerald-500 to-cyan-500 p-8 sm:p-12 text-slate-950 flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl shadow-teal-500/25 hover:shadow-teal-500/35 transition-all duration-300">
           <div className="space-y-2 text-center md:text-left max-w-xl">
             <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-950">
               Ready to create your first protected short link?
             </h2>
-            <p className="text-slate-900/80 text-xs sm:text-sm font-medium">
+            <p className="text-slate-950/80 text-xs sm:text-sm font-semibold">
               Join thousands of creators, developers, and marketing teams using SnipURL for instant, collision-free redirects.
             </p>
           </div>
@@ -346,10 +350,10 @@ export function HomeFeatures({ onSelectTab, onOpenAuth, user }) {
               onClick={() => {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
-              className="px-6 py-3.5 rounded-2xl bg-slate-950 text-white hover:bg-slate-900 font-bold text-xs sm:text-sm shadow-xl hover:scale-105 transition-all cursor-pointer flex items-center space-x-2"
+              className="group px-7 py-4 rounded-2xl bg-slate-950 text-white hover:bg-slate-900 font-black text-xs sm:text-sm shadow-2xl hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer flex items-center space-x-2"
             >
               <span>Shorten a URL Now</span>
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-200" />
             </button>
           </div>
         </div>

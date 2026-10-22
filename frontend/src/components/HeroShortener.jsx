@@ -190,10 +190,10 @@ export function HeroShortener({ onLinkCreated, onOpenAnalytics, onOpenQr }) {
   return (
     <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 space-y-10">
       
-      <div className="absolute top-10 left-1/2 -translate-x-1/2 w-[600px] h-[320px] bg-gradient-to-tr from-teal-500/20 via-emerald-400/10 to-cyan-500/20 blur-[130px] rounded-full pointer-events-none -z-10" />
+      <div className="absolute top-10 left-1/2 -translate-x-1/2 w-[600px] h-[320px] bg-gradient-to-tr from-teal-500/20 via-emerald-400/10 to-cyan-500/20 blur-[130px] rounded-full pointer-events-none -z-10 animate-float-slow" />
 
       <div className="text-center space-y-4">
-        <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-700 dark:text-teal-400 text-xs font-bold tracking-wide shadow-sm backdrop-blur-md">
+        <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-700 dark:text-teal-400 text-xs font-bold tracking-wide shadow-sm shadow-teal-500/5 backdrop-blur-md hover:scale-105 hover:border-teal-500/40 transition-all duration-200 cursor-default select-none">
           <span className="w-2 h-2 rounded-full bg-teal-500 animate-pulse" />
           <span>Sub-3ms Edge Redirection • Real-Time Telemetry</span>
         </div>
@@ -210,12 +210,12 @@ export function HeroShortener({ onLinkCreated, onOpenAnalytics, onOpenQr }) {
         </p>
       </div>
 
-      <div className="relative rounded-3xl bg-white/95 dark:bg-slate-900/90 border border-slate-200/90 dark:border-slate-800/80 ring-1 ring-slate-900/5 dark:ring-white/5 p-5 sm:p-8 shadow-2xl shadow-teal-500/5 backdrop-blur-2xl transition-all duration-200">
+      <div className="relative rounded-3xl bg-white/95 dark:bg-slate-900/90 border border-slate-200/90 dark:border-slate-800/80 ring-1 ring-slate-900/5 dark:ring-white/5 p-5 sm:p-8 shadow-2xl shadow-teal-500/5 hover:shadow-teal-500/10 hover:border-teal-500/40 backdrop-blur-2xl transition-all duration-300">
         <form onSubmit={handleSubmit} className="space-y-5">
           
           <div className="relative flex flex-col sm:flex-row items-stretch gap-3">
             <div className="relative flex-1 group">
-              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 dark:text-slate-500 group-focus-within:text-teal-500 transition-colors">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 dark:text-slate-500 group-focus-within:text-teal-500 group-focus-within:scale-110 transition-all duration-200">
                 <Link2 className="w-5 h-5" />
               </div>
               <input
@@ -228,12 +228,12 @@ export function HeroShortener({ onLinkCreated, onOpenAnalytics, onOpenQr }) {
                   setError('');
                 }}
                 onBlur={() => runSafetyScan(originalUrl)}
-                className="w-full pl-11 pr-24 py-4 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-4 focus:ring-teal-500/10 focus:border-teal-500 text-sm sm:text-base transition-all shadow-inner"
+                className="w-full pl-11 pr-24 py-4 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-4 focus:ring-teal-500/20 focus:border-teal-500 hover:border-slate-300 dark:hover:border-slate-700 text-sm sm:text-base transition-all shadow-inner"
               />
               <button
                 type="button"
                 onClick={handlePaste}
-                className="absolute right-3 top-1/2 -translate-y-1/2 px-3 py-1.5 text-xs font-bold rounded-xl bg-slate-200/80 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer"
+                className="absolute right-3 top-1/2 -translate-y-1/2 px-3 py-1.5 text-xs font-bold rounded-xl bg-slate-200/80 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:scale-105 active:scale-95 shadow-sm transition-all cursor-pointer"
               >
                 Paste
               </button>
@@ -242,7 +242,7 @@ export function HeroShortener({ onLinkCreated, onOpenAnalytics, onOpenQr }) {
             <button
               type="submit"
               disabled={loading || !originalUrl}
-              className="px-8 py-4 rounded-2xl bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 text-slate-950 font-black text-sm sm:text-base flex items-center justify-center space-x-2 shadow-lg shadow-teal-500/25 transition-all hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:pointer-events-none cursor-pointer"
+              className="group/btn px-8 py-4 rounded-2xl bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 text-slate-950 font-black text-sm sm:text-base flex items-center justify-center space-x-2 shadow-lg shadow-teal-500/25 hover:shadow-xl hover:shadow-teal-500/35 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all duration-200 disabled:opacity-50 disabled:pointer-events-none cursor-pointer"
             >
               {loading ? (
                 <>
@@ -252,7 +252,7 @@ export function HeroShortener({ onLinkCreated, onOpenAnalytics, onOpenQr }) {
               ) : (
                 <>
                   <span>Shorten Link</span>
-                  <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+                  <ArrowRight className="w-5 h-5 stroke-[2.5] group-hover/btn:translate-x-1 transition-transform duration-200" />
                 </>
               )}
             </button>
@@ -264,12 +264,12 @@ export function HeroShortener({ onLinkCreated, onOpenAnalytics, onOpenQr }) {
                 type="button"
                 onClick={handleSuggestSlugs}
                 disabled={loadingSlugs || !originalUrl}
-                className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-teal-50 dark:bg-teal-500/10 hover:bg-teal-100 dark:hover:bg-teal-500/20 text-teal-700 dark:text-teal-300 border border-teal-200 dark:border-teal-500/30 font-semibold transition-colors disabled:opacity-50 cursor-pointer"
+                className="group/ai inline-flex items-center space-x-1.5 px-3.5 py-2 rounded-xl bg-teal-50 dark:bg-teal-500/10 hover:bg-teal-100 dark:hover:bg-teal-500/20 text-teal-700 dark:text-teal-300 border border-teal-200 dark:border-teal-500/30 hover:border-teal-400/50 font-semibold transition-all duration-200 hover:scale-105 active:scale-95 disabled:opacity-50 cursor-pointer shadow-sm"
               >
                 {loadingSlugs ? (
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
                 ) : (
-                  <Sparkles className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
+                  <Sparkles className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400 group-hover/ai:rotate-12 group-hover/ai:scale-110 transition-transform duration-200" />
                 )}
                 <span>Generate AI Slugs</span>
               </button>
@@ -277,29 +277,29 @@ export function HeroShortener({ onLinkCreated, onOpenAnalytics, onOpenQr }) {
               <button
                 type="button"
                 onClick={() => setShowAdvanced(!showAdvanced)}
-                className="inline-flex items-center space-x-1 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-semibold transition-colors cursor-pointer"
+                className="inline-flex items-center space-x-1.5 px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-transparent hover:border-slate-300 dark:hover:border-slate-700 text-slate-700 dark:text-slate-300 font-semibold transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer shadow-sm"
               >
                 <span>Targeting & Controls</span>
                 {showAdvanced ? (
-                  <ChevronUp className="w-3.5 h-3.5 ml-0.5" />
+                  <ChevronUp className="w-3.5 h-3.5 ml-0.5 transition-transform duration-200" />
                 ) : (
-                  <ChevronDown className="w-3.5 h-3.5 ml-0.5" />
+                  <ChevronDown className="w-3.5 h-3.5 ml-0.5 transition-transform duration-200" />
                 )}
               </button>
             </div>
 
             {safetyStatus && (
               <div
-                className={`inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-bold ${
+                className={`inline-flex items-center space-x-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold shadow-sm transition-all duration-200 ${
                   safetyStatus.isSafe
-                    ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20'
-                    : 'bg-rose-50 dark:bg-rose-500/10 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-500/20'
+                    ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20 hover:border-emerald-400/40'
+                    : 'bg-rose-50 dark:bg-rose-500/10 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-500/20 hover:border-rose-400/40'
                 }`}
               >
                 {safetyStatus.isSafe ? (
-                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-500 animate-pulse" />
                 ) : (
-                  <ShieldAlert className="w-3.5 h-3.5 text-rose-500" />
+                  <ShieldAlert className="w-3.5 h-3.5 text-rose-500 animate-bounce" />
                 )}
                 <span>{safetyStatus.isSafe ? 'AI Verified Safe' : `Flagged: ${safetyStatus.riskCategory}`}</span>
               </div>
@@ -307,9 +307,9 @@ export function HeroShortener({ onLinkCreated, onOpenAnalytics, onOpenQr }) {
           </div>
 
           {suggestedSlugs.length > 0 && (
-            <div className="p-4 rounded-2xl bg-teal-50/50 dark:bg-slate-950/60 border border-teal-200 dark:border-teal-500/30 space-y-2 animate-in fade-in duration-150">
+            <div className="p-4 rounded-2xl bg-teal-50/50 dark:bg-slate-950/60 border border-teal-200 dark:border-teal-500/30 space-y-2.5 animate-in fade-in duration-200 shadow-sm">
               <div className="flex items-center space-x-1.5 text-xs text-teal-800 dark:text-teal-400 font-bold">
-                <Sparkles className="w-3.5 h-3.5" />
+                <Sparkles className="w-3.5 h-3.5 animate-spin" style={{ animationDuration: '6s' }} />
                 <span>AI Recommended Slugs (Click to use):</span>
               </div>
               <div className="flex flex-wrap gap-2">
@@ -321,10 +321,10 @@ export function HeroShortener({ onLinkCreated, onOpenAnalytics, onOpenQr }) {
                       setCustomAlias(slug);
                       setShowAdvanced(true);
                     }}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-mono font-semibold transition-all cursor-pointer ${
+                    className={`px-3.5 py-1.5 rounded-xl text-xs font-mono font-bold transition-all duration-200 cursor-pointer ${
                       customAlias === slug
-                        ? 'bg-teal-500 text-slate-950 font-bold shadow-md shadow-teal-500/20 scale-105'
-                        : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-teal-100 dark:hover:bg-teal-500/20 hover:text-teal-800 dark:hover:text-teal-300 border border-slate-200 dark:border-slate-700'
+                        ? 'bg-teal-500 text-slate-950 font-black shadow-md shadow-teal-500/25 scale-105 ring-2 ring-teal-400/50'
+                        : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-teal-50 dark:hover:bg-teal-500/10 hover:text-teal-700 dark:hover:text-teal-300 hover:border-teal-400 dark:hover:border-teal-500/40 hover:-translate-y-0.5 hover:shadow-sm border border-slate-200 dark:border-slate-700 active:scale-95'
                     }`}
                   >
                     /{slug}
@@ -636,42 +636,46 @@ export function HeroShortener({ onLinkCreated, onOpenAnalytics, onOpenQr }) {
 
         {createdResult && (
           <div className="mt-8 pt-6 border-t border-slate-200 dark:border-slate-800 animate-in fade-in zoom-in-95 duration-200">
-            <div className="p-5 sm:p-6 rounded-2xl bg-slate-50/90 dark:bg-slate-950/80 border border-teal-500/40 ring-1 ring-teal-500/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5 shadow-xl shadow-teal-500/5">
-              <div className="space-y-1.5 w-full sm:w-auto">
+            <div className="p-6 sm:p-7 rounded-3xl bg-gradient-to-br from-teal-500/10 via-white to-emerald-500/5 dark:from-teal-950/30 dark:via-slate-950/90 dark:to-slate-900 border-2 border-teal-500/40 ring-4 ring-teal-500/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 shadow-2xl shadow-teal-500/10 hover:border-teal-500/60 transition-all duration-300">
+              <div className="space-y-2 w-full sm:w-auto">
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-[11px] font-extrabold uppercase tracking-wider text-teal-700 dark:text-teal-400 flex items-center space-x-1">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+                  <span className="px-2.5 py-1 rounded-full text-[11px] font-extrabold uppercase tracking-wider bg-emerald-500/15 border border-emerald-500/30 text-emerald-700 dark:text-emerald-400 flex items-center space-x-1.5 shadow-sm">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 animate-pulse" />
                     <span>Your Short Link Ready</span>
                   </span>
                   {createdResult.category && (
-                    <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-200/80 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                    <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-200/80 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300/60 dark:border-slate-700">
                       {createdResult.category}
                     </span>
                   )}
                   {createdResult.isOneTime && (
-                    <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-rose-50 dark:bg-rose-500/10 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-500/20">
+                    <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-rose-50 dark:bg-rose-500/10 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-500/20 animate-pulse">
                       Burn on Click
                     </span>
                   )}
                 </div>
 
-                <div className="text-xl sm:text-2xl font-mono font-black text-slate-900 dark:text-white tracking-tight flex items-center space-x-2 break-all">
-                  <span className="text-teal-600 dark:text-teal-400">{createdResult.shortUrl}</span>
+                <div 
+                  onClick={() => handleCopy(createdResult.shortUrl)}
+                  className="group/link text-xl sm:text-2xl font-mono font-black text-slate-900 dark:text-white tracking-tight flex items-center space-x-2 break-all cursor-pointer"
+                  title="Click to copy link"
+                >
+                  <span className="text-teal-600 dark:text-teal-400 group-hover/link:underline underline-offset-4 decoration-teal-400/50 transition-all">{createdResult.shortUrl}</span>
                 </div>
 
                 <p className="text-xs text-slate-500 dark:text-slate-400 truncate max-w-md">
-                  Original: {createdResult.originalUrl}
+                  Original: <span className="hover:text-slate-700 dark:hover:text-slate-300 transition-colors">{createdResult.originalUrl}</span>
                 </p>
               </div>
 
-              <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-end">
+              <div className="flex flex-wrap items-center gap-2.5 w-full sm:w-auto justify-end">
                 <button
                   type="button"
                   onClick={() => handleCopy(createdResult.shortUrl)}
-                  className={`px-4 py-2.5 rounded-xl text-xs font-black flex items-center space-x-1.5 transition-all cursor-pointer ${
+                  className={`px-5 py-3 rounded-2xl text-xs font-black flex items-center space-x-2 transition-all duration-200 cursor-pointer shadow-lg ${
                     copied
-                      ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/25'
-                      : 'bg-teal-500 hover:bg-teal-400 text-slate-950 shadow-md shadow-teal-500/25 hover:-translate-y-0.5'
+                      ? 'bg-emerald-500 text-slate-950 shadow-emerald-500/30 scale-105'
+                      : 'bg-teal-500 hover:bg-teal-400 text-slate-950 shadow-teal-500/25 hover:shadow-teal-500/40 hover:-translate-y-0.5 active:translate-y-0 active:scale-95'
                   }`}
                 >
                   {copied ? <Check className="w-4 h-4 stroke-[3]" /> : <Copy className="w-4 h-4 stroke-[2.5]" />}
@@ -682,7 +686,7 @@ export function HeroShortener({ onLinkCreated, onOpenAnalytics, onOpenQr }) {
                   href={createdResult.shortUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="p-2.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 transition-colors shadow-sm"
+                  className="p-3 rounded-2xl bg-white dark:bg-slate-800 hover:bg-teal-50 dark:hover:bg-slate-700/80 border border-slate-200 dark:border-slate-700 hover:border-teal-400 dark:hover:border-teal-500/40 text-slate-700 dark:text-slate-300 hover:text-teal-600 dark:hover:text-teal-400 transition-all duration-200 hover:scale-110 active:scale-95 shadow-sm"
                   title="Test Link in new tab"
                 >
                   <ExternalLink className="w-4 h-4" />
@@ -692,7 +696,7 @@ export function HeroShortener({ onLinkCreated, onOpenAnalytics, onOpenQr }) {
                   <button
                     type="button"
                     onClick={() => onOpenQr(createdResult)}
-                    className="p-2.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 transition-colors cursor-pointer shadow-sm"
+                    className="p-3 rounded-2xl bg-white dark:bg-slate-800 hover:bg-teal-50 dark:hover:bg-slate-700/80 border border-slate-200 dark:border-slate-700 hover:border-teal-400 dark:hover:border-teal-500/40 text-slate-700 dark:text-slate-300 hover:text-teal-600 dark:hover:text-teal-400 transition-all duration-200 hover:scale-110 active:scale-95 cursor-pointer shadow-sm"
                     title="View QR Code"
                   >
                     <QrCode className="w-4 h-4" />
@@ -702,7 +706,7 @@ export function HeroShortener({ onLinkCreated, onOpenAnalytics, onOpenQr }) {
                 <button
                   type="button"
                   onClick={() => onOpenAnalytics(createdResult.shortCode)}
-                  className="px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-xs font-bold transition-colors cursor-pointer shadow-sm"
+                  className="px-4 py-3 rounded-2xl bg-white dark:bg-slate-800 hover:bg-teal-50 dark:hover:bg-slate-700/80 border border-slate-200 dark:border-slate-700 hover:border-teal-400 dark:hover:border-teal-500/40 text-slate-700 dark:text-slate-300 hover:text-teal-600 dark:hover:text-teal-400 text-xs font-bold transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer shadow-sm"
                 >
                   Analytics
                 </button>

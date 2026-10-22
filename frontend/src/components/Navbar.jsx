@@ -64,17 +64,17 @@ export function Navbar({ activeTab, setActiveTab, onOpenAuth }) {
             className="flex items-center space-x-2.5 cursor-pointer select-none group"
           >
             <div className="relative">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-teal-500 to-emerald-400 dark:from-teal-400 dark:to-cyan-400 flex items-center justify-center text-slate-950 font-black shadow-md shadow-teal-500/25 group-hover:scale-105 transition-all duration-200">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-teal-500 to-emerald-400 dark:from-teal-400 dark:to-cyan-400 flex items-center justify-center text-slate-950 font-black shadow-md shadow-teal-500/25 group-hover:scale-110 group-hover:rotate-6 group-hover:shadow-teal-500/40 transition-all duration-300">
                 <Link2 className="w-5 h-5 stroke-[2.5]" />
               </div>
               <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-400 border-2 border-white dark:border-slate-950 rounded-full animate-pulse" />
             </div>
 
             <div className="flex items-baseline space-x-1.5">
-              <span className="text-xl font-black tracking-tight text-slate-900 dark:text-white">
-                Snip<span className="bg-gradient-to-r from-teal-600 to-emerald-500 dark:from-teal-400 dark:to-cyan-400 bg-clip-text text-transparent">URL</span>
+              <span className="text-xl font-black tracking-tight text-slate-900 dark:text-white transition-colors duration-200">
+                Snip<span className="bg-gradient-to-r from-teal-600 to-emerald-500 dark:from-teal-400 dark:to-cyan-400 bg-clip-text text-transparent group-hover:brightness-110 transition-all">URL</span>
               </span>
-              <span className="hidden sm:inline-block px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wider bg-teal-500/10 text-teal-600 dark:text-teal-400 border border-teal-500/20 rounded-md">
+              <span className="hidden sm:inline-block px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wider bg-teal-500/10 text-teal-600 dark:text-teal-400 border border-teal-500/20 rounded-md group-hover:border-teal-500/40 transition-colors">
                 Fast Edge
               </span>
             </div>
@@ -89,13 +89,13 @@ export function Navbar({ activeTab, setActiveTab, onOpenAuth }) {
                   key={item.id}
                   type="button"
                   onClick={() => handleSelectTab(item.id)}
-                  className={`px-3.5 py-2 rounded-xl transition-all cursor-pointer flex items-center space-x-1.5 ${
+                  className={`px-3.5 py-2 rounded-xl transition-all duration-200 cursor-pointer flex items-center space-x-1.5 group/nav ${
                     isActive
-                      ? 'bg-slate-100 dark:bg-slate-800 text-teal-700 dark:text-teal-400 font-bold shadow-sm dark:shadow-none'
-                      : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-slate-900'
+                      ? 'bg-teal-50 dark:bg-teal-500/10 text-teal-700 dark:text-teal-300 font-bold border border-teal-200/80 dark:border-teal-500/30 shadow-sm shadow-teal-500/10 scale-[1.02]'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/80 hover:scale-[1.02] active:scale-[0.98]'
                   }`}
                 >
-                  <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-teal-600 dark:text-teal-400' : 'text-slate-400'}`} />
+                  <Icon className={`w-3.5 h-3.5 transition-transform duration-200 group-hover/nav:scale-110 ${isActive ? 'text-teal-600 dark:text-teal-400' : 'text-slate-400 group-hover/nav:text-teal-500'}`} />
                   <span>{item.label}</span>
                 </button>
               );
@@ -109,7 +109,7 @@ export function Navbar({ activeTab, setActiveTab, onOpenAuth }) {
             type="button"
             onClick={toggleTheme}
             aria-label="Toggle Day and Night Theme"
-            className="p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200/80 dark:bg-slate-900 dark:hover:bg-slate-800 border border-slate-200/80 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:text-teal-600 dark:hover:text-teal-400 transition-all cursor-pointer group"
+            className="p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200/80 dark:bg-slate-900 dark:hover:bg-slate-800 border border-slate-200/80 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:text-teal-600 dark:hover:text-teal-400 hover:ring-2 hover:ring-teal-500/20 hover:scale-105 active:scale-95 transition-all cursor-pointer group shadow-sm"
             title={theme === 'dark' ? 'Switch to Day Mode (Light)' : 'Switch to Night Mode (Dark)'}
           >
             {theme === 'dark' ? (
@@ -124,15 +124,15 @@ export function Navbar({ activeTab, setActiveTab, onOpenAuth }) {
               <button
                 type="button"
                 onClick={() => setUserMenuOpen(!userMenuOpen)}
-                className="flex items-center space-x-2 pl-2.5 pr-2 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-900 hover:bg-slate-200/80 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 transition-colors cursor-pointer"
+                className="flex items-center space-x-2 pl-2.5 pr-2 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-900 hover:bg-slate-200/80 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 hover:border-teal-500/30 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer shadow-sm"
               >
-                <div className="w-6 h-6 rounded-lg bg-gradient-to-tr from-teal-500 to-emerald-500 text-slate-950 font-bold text-xs flex items-center justify-center">
+                <div className="w-6 h-6 rounded-lg bg-gradient-to-tr from-teal-500 to-emerald-500 text-slate-950 font-bold text-xs flex items-center justify-center shadow-sm">
                   {user.name ? user.name[0].toUpperCase() : 'U'}
                 </div>
                 <span className="text-xs font-bold text-slate-800 dark:text-slate-200 hidden sm:inline-block max-w-[100px] truncate">
                   {user.name || user.email}
                 </span>
-                <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+                <ChevronDown className="w-3.5 h-3.5 text-slate-400 transition-transform duration-200" />
               </button>
 
               {userMenuOpen && (
@@ -198,7 +198,7 @@ export function Navbar({ activeTab, setActiveTab, onOpenAuth }) {
             <button
               type="button"
               onClick={onOpenAuth}
-              className="px-4 py-2 rounded-xl bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 text-slate-950 font-bold text-xs shadow-md shadow-teal-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
+              className="px-4 py-2 rounded-xl bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 text-slate-950 font-bold text-xs shadow-md shadow-teal-500/25 hover:shadow-lg hover:shadow-teal-500/35 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all duration-200 cursor-pointer"
             >
               Sign In
             </button>

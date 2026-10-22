@@ -406,12 +406,19 @@ export function DeveloperPortal() {
 
       {activeSubTab === 'snippets' && (
         <div className="space-y-6">
-          <div className="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-4 shadow-xl shadow-slate-200/50 dark:shadow-2xl transition-colors">
-            <div className="flex items-center space-x-2 text-slate-900 dark:text-white font-bold text-base">
-              <Terminal className="w-5 h-5 text-teal-500 dark:text-teal-400" />
-              <span>cURL Integration</span>
+          <div className="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-4 shadow-xl shadow-slate-200/50 dark:shadow-2xl hover:border-teal-500/40 hover:shadow-teal-500/5 transition-all duration-300">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2 text-slate-900 dark:text-white font-bold text-base">
+                <Terminal className="w-5 h-5 text-teal-500 dark:text-teal-400" />
+                <span>cURL Integration</span>
+              </div>
+              <div className="flex items-center space-x-1.5">
+                <div className="w-2.5 h-2.5 rounded-full bg-rose-500/60" />
+                <div className="w-2.5 h-2.5 rounded-full bg-amber-500/60" />
+                <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/60" />
+              </div>
             </div>
-            <pre className="p-4 rounded-2xl bg-slate-950 text-xs font-mono text-teal-300 overflow-x-auto border border-slate-800">
+            <pre className="p-4 rounded-2xl bg-slate-950 text-xs font-mono text-teal-300 overflow-x-auto border border-slate-800 shadow-inner">
 {`curl -X POST https://yourdomain.com/api/urls \\
   -H "Content-Type: application/json" \\
   -H "X-API-Key: snip_your_api_key_here" \\
@@ -422,12 +429,19 @@ export function DeveloperPortal() {
             </pre>
           </div>
 
-          <div className="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-4 shadow-xl shadow-slate-200/50 dark:shadow-2xl transition-colors">
-            <div className="flex items-center space-x-2 text-slate-900 dark:text-white font-bold text-base">
-              <FileCode className="w-5 h-5 text-cyan-500 dark:text-cyan-400" />
-              <span>Node.js / JavaScript Fetch</span>
+          <div className="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-4 shadow-xl shadow-slate-200/50 dark:shadow-2xl hover:border-cyan-500/40 hover:shadow-cyan-500/5 transition-all duration-300">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2 text-slate-900 dark:text-white font-bold text-base">
+                <FileCode className="w-5 h-5 text-cyan-500 dark:text-cyan-400" />
+                <span>Node.js / JavaScript Fetch</span>
+              </div>
+              <div className="flex items-center space-x-1.5">
+                <div className="w-2.5 h-2.5 rounded-full bg-rose-500/60" />
+                <div className="w-2.5 h-2.5 rounded-full bg-amber-500/60" />
+                <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/60" />
+              </div>
             </div>
-            <pre className="p-4 rounded-2xl bg-slate-950 text-xs font-mono text-cyan-300 overflow-x-auto border border-slate-800">
+            <pre className="p-4 rounded-2xl bg-slate-950 text-xs font-mono text-cyan-300 overflow-x-auto border border-slate-800 shadow-inner">
 {`const response = await fetch("https://yourdomain.com/api/urls", {
   method: "POST",
   headers: {
@@ -444,12 +458,19 @@ console.log("Short link created:", result.data.shortUrl);`}
             </pre>
           </div>
 
-          <div className="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-4 shadow-xl shadow-slate-200/50 dark:shadow-2xl transition-colors">
-            <div className="flex items-center space-x-2 text-slate-900 dark:text-white font-bold text-base">
-              <FileCode className="w-5 h-5 text-emerald-500 dark:text-emerald-400" />
-              <span>Python (requests)</span>
+          <div className="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-4 shadow-xl shadow-slate-200/50 dark:shadow-2xl hover:border-emerald-500/40 hover:shadow-emerald-500/5 transition-all duration-300">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2 text-slate-900 dark:text-white font-bold text-base">
+                <FileCode className="w-5 h-5 text-emerald-500 dark:text-emerald-400" />
+                <span>Python (requests)</span>
+              </div>
+              <div className="flex items-center space-x-1.5">
+                <div className="w-2.5 h-2.5 rounded-full bg-rose-500/60" />
+                <div className="w-2.5 h-2.5 rounded-full bg-amber-500/60" />
+                <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/60" />
+              </div>
             </div>
-            <pre className="p-4 rounded-2xl bg-slate-950 text-xs font-mono text-emerald-300 overflow-x-auto border border-slate-800">
+            <pre className="p-4 rounded-2xl bg-slate-950 text-xs font-mono text-emerald-300 overflow-x-auto border border-slate-800 shadow-inner">
 {`import requests
 
 url = "https://yourdomain.com/api/urls"

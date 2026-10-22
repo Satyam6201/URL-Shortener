@@ -26,10 +26,10 @@ export function CampaignTools({ onOpenAnalytics, onOpenQr, onLinkCreated }) {
           <button
             type="button"
             onClick={() => setSelectedTool('bulk')}
-            className={`inline-flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+            className={`inline-flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer ${
               selectedTool === 'bulk'
-                ? 'bg-white dark:bg-slate-800 text-teal-700 dark:text-teal-400 shadow-sm'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                ? 'bg-white dark:bg-slate-800 text-teal-700 dark:text-teal-400 shadow-md shadow-slate-900/5 dark:shadow-none scale-100'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:scale-105 active:scale-95'
             }`}
           >
             <Files className="w-3.5 h-3.5" />
@@ -39,10 +39,10 @@ export function CampaignTools({ onOpenAnalytics, onOpenQr, onLinkCreated }) {
           <button
             type="button"
             onClick={() => setSelectedTool('utm')}
-            className={`inline-flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+            className={`inline-flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer ${
               selectedTool === 'utm'
-                ? 'bg-white dark:bg-slate-800 text-teal-700 dark:text-teal-400 shadow-sm'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                ? 'bg-white dark:bg-slate-800 text-teal-700 dark:text-teal-400 shadow-md shadow-slate-900/5 dark:shadow-none scale-100'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:scale-105 active:scale-95'
             }`}
           >
             <Target className="w-3.5 h-3.5" />
