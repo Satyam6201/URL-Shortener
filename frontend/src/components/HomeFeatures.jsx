@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import {
   Zap,
-  ShieldCheck,
   Globe2,
   Lock,
   Radio,
@@ -9,9 +8,6 @@ import {
   Sparkles,
   ChevronDown,
   ArrowRight,
-  MousePointerClick,
-  CheckCircle2,
-  XCircle,
 } from 'lucide-react';
 
 export function HomeFeatures({ onSelectTab, onOpenAuth, user }) {
@@ -76,34 +72,6 @@ export function HomeFeatures({ onSelectTab, onOpenAuth, user }) {
       description:
         'Automate link creation with production API keys. Receive signed HMAC-SHA256 webhook notifications whenever links are clicked or expire.',
       pill: 'Developer Ready',
-    },
-  ];
-
-  const comparison = [
-    {
-      feature: 'Redirection Latency',
-      traditional: '50ms – 250ms with synchronous disk queries',
-      snipurl: 'Under 3ms via in-memory Redis cache-aside topology',
-    },
-    {
-      feature: 'Collision Prevention',
-      traditional: 'MD5/SHA hash truncation with repetitive collision retries',
-      snipurl: 'Atomic Redis INCR mapped to Base62 with zero collisions',
-    },
-    {
-      feature: 'Bot & Spider Traffic',
-      traditional: 'Skewed click counts inflated by search crawlers and bots',
-      snipurl: 'Automated crawler isolation and verified human analytics',
-    },
-    {
-      feature: 'Security & SSRF Guard',
-      traditional: 'Basic regex vulnerable to internal subnet redirects',
-      snipurl: 'Pre-flight DNS inspection preventing internal network pivots',
-    },
-    {
-      feature: 'Link Customization',
-      traditional: 'Random generic strings with no contextual intelligence',
-      snipurl: 'Google Gemini AI smart slug recommendations in 1-click',
     },
   ];
 
@@ -246,49 +214,6 @@ export function HomeFeatures({ onSelectTab, onOpenAuth, user }) {
         </div>
       </section>
 
-      <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-        <div className="text-center space-y-2">
-          <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
-            Why SnipURL Outperforms Traditional Shorteners
-          </h2>
-          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
-            A side-by-side comparison of modern edge architecture vs. legacy shortener systems.
-          </p>
-        </div>
-
-        <div className="rounded-3xl bg-white/90 dark:bg-slate-900/70 border border-slate-200/90 dark:border-slate-800/80 overflow-hidden shadow-xl shadow-slate-900/5 hover:border-teal-500/40 transition-all duration-300">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs sm:text-sm">
-              <thead className="bg-slate-50 dark:bg-slate-950 text-slate-600 dark:text-slate-400 uppercase font-mono text-[11px] border-b border-slate-200 dark:border-slate-800">
-                <tr>
-                  <th className="px-5 py-4 font-bold">Feature</th>
-                  <th className="px-5 py-4 font-bold text-slate-400">Legacy Shorteners</th>
-                  <th className="px-5 py-4 font-bold text-teal-600 dark:text-teal-400 bg-teal-500/5">SnipURL Fast Edge</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 font-sans">
-                {comparison.map((row, i) => (
-                  <tr key={i} className="hover:bg-teal-500/[0.04] dark:hover:bg-slate-800/50 transition-colors duration-150">
-                    <td className="px-5 py-4 font-bold text-slate-900 dark:text-white">
-                      {row.feature}
-                    </td>
-                    <td className="px-5 py-4 text-slate-500 dark:text-slate-400 flex items-start space-x-2">
-                      <XCircle className="w-4 h-4 text-rose-500 flex-shrink-0 mt-0.5" />
-                      <span>{row.traditional}</span>
-                    </td>
-                    <td className="px-5 py-4 text-slate-800 dark:text-slate-200 font-medium bg-teal-500/[0.02]">
-                      <div className="flex items-start space-x-2">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5" />
-                        <span className="font-semibold text-slate-900 dark:text-white">{row.snipurl}</span>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </section>
 
       <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         <div className="text-center space-y-2">
