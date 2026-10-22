@@ -132,7 +132,6 @@ export function HomeFeatures({ onSelectTab, onOpenAuth, user }) {
 
   return (
     <div className="space-y-24 mt-16 sm:mt-24">
-      {/* Metric Proof Strip */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           {metrics.map((m, idx) => (
@@ -154,7 +153,6 @@ export function HomeFeatures({ onSelectTab, onOpenAuth, user }) {
         </div>
       </section>
 
-      {/* Feature Showcase Grid */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         <div className="text-center max-w-3xl mx-auto space-y-3">
           <span className="px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-teal-500/10 text-teal-700 dark:text-teal-400 border border-teal-500/20">
@@ -202,7 +200,6 @@ export function HomeFeatures({ onSelectTab, onOpenAuth, user }) {
         </div>
       </section>
 
-      {/* 3 Step Workflow */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         <div className="text-center max-w-2xl mx-auto space-y-3">
           <span className="px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-teal-500/10 text-teal-700 dark:text-teal-400 border border-teal-500/20">
@@ -249,7 +246,6 @@ export function HomeFeatures({ onSelectTab, onOpenAuth, user }) {
         </div>
       </section>
 
-      {/* Modern Comparison Table */}
       <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         <div className="text-center space-y-2">
           <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">
@@ -294,7 +290,6 @@ export function HomeFeatures({ onSelectTab, onOpenAuth, user }) {
         </div>
       </section>
 
-      {/* Interactive FAQ Accordion */}
       <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         <div className="text-center space-y-2">
           <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">
@@ -334,7 +329,6 @@ export function HomeFeatures({ onSelectTab, onOpenAuth, user }) {
         </div>
       </section>
 
-      {/* Bottom Conversion CTA Banner */}
       <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="relative rounded-3xl overflow-hidden bg-gradient-to-r from-teal-500 via-emerald-500 to-cyan-500 p-8 sm:p-12 text-slate-950 flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl shadow-teal-500/20">
           <div className="space-y-2 text-center md:text-left max-w-xl">

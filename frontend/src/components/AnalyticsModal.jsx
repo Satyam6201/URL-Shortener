@@ -50,7 +50,6 @@ export function AnalyticsModal({ shortCode, onClose }) {
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-md overflow-y-auto animate-in fade-in duration-150">
       <div className="relative w-full max-w-5xl rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl p-6 sm:p-8 space-y-6 my-8 max-h-[90vh] overflow-y-auto">
         
-        {/* Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-5">
           <div className="space-y-1">
             <div className="flex items-center space-x-2">
@@ -68,7 +67,6 @@ export function AnalyticsModal({ shortCode, onClose }) {
           </div>
 
           <div className="flex items-center space-x-3 self-end sm:self-center">
-            {/* Timeframe Switcher */}
             <div className="flex items-center bg-slate-100 dark:bg-slate-950 p-1 rounded-xl border border-slate-200 dark:border-slate-800 text-xs">
               {['24h', '7d', '30d', 'all'].map((tf) => (
                 <button
@@ -89,15 +87,15 @@ export function AnalyticsModal({ shortCode, onClose }) {
               href={`/api/analytics/${shortCode}/export/csv`}
               target="_blank"
               rel="noopener noreferrer"
-              className="p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors cursor-pointer"
-              title="Export CSV"
+              className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors"
+              title="Download CSV"
             >
               <Download className="w-4 h-4" />
             </a>
 
             <button
               onClick={onClose}
-              className="p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors cursor-pointer"
+              className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
@@ -107,16 +105,15 @@ export function AnalyticsModal({ shortCode, onClose }) {
         {loading ? (
           <div className="py-24 text-center space-y-3">
             <div className="w-8 h-8 border-2 border-teal-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
-            <p className="text-sm text-slate-500 dark:text-slate-400">Aggregating link telemetry & insights...</p>
+            <p className="text-xs text-slate-400">Aggregating telemetry events...</p>
           </div>
         ) : error ? (
-          <div className="p-4 rounded-xl bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/20 text-rose-700 dark:text-rose-400 text-sm">
+          <div className="py-12 text-center text-rose-500 text-sm">
             {error}
           </div>
         ) : (
           <div className="space-y-6">
             
-            {/* AI Insights Card */}
             {data?.aiInsights && (
               <div className="p-5 sm:p-6 rounded-2xl bg-gradient-to-r from-teal-50 via-slate-50 to-emerald-50 dark:from-teal-950/60 dark:via-slate-900 dark:to-slate-900 border border-teal-200 dark:border-teal-500/30 space-y-3 shadow-sm">
                 <div className="flex items-center space-x-2 text-teal-800 dark:text-teal-300 font-bold text-sm">
@@ -144,7 +141,6 @@ export function AnalyticsModal({ shortCode, onClose }) {
               </div>
             )}
 
-            {/* Quick KPI Quad */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
                 <div className="text-xs text-slate-500 dark:text-slate-400 uppercase font-bold">Total Clicks</div>
@@ -172,37 +168,57 @@ export function AnalyticsModal({ shortCode, onClose }) {
               </div>
             </div>
 
-            {/* Traffic Velocity Over Time Chart */}
             <div className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-3">
               <div className="flex items-center justify-between text-sm font-bold text-slate-900 dark:text-white">
                 <span className="flex items-center space-x-2">
                   <TrendingUp className="w-4 h-4 text-teal-600 dark:text-teal-400" />
                   <span>Traffic Velocity Over Time</span>
                 </span>
-                <span className="text-xs text-slate-500 dark:text-slate-400 font-normal">Granular aggregation</span>
+                <span className="text-xs text-slate-500 dark:text-slate-400 font-mono">
+                  {data?.timeline?.length || 0} data intervals
+                </span>
               </div>
-              <div className="h-56 w-full pt-4">
-                {data?.clicksOverTime?.length > 0 ? (
+
+              <div className="h-64 w-full pt-4">
+                {data?.timeline?.length > 0 ? (
                   <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={data.clicksOverTime}>
+                    <AreaChart data={data.timeline}>
                       <defs>
-                        <linearGradient id="modalClickColor" x1="0" y1="0" x2="0" y2="1">
+                        <linearGradient id="clickGradient" x1="0" y1="0" x2="0" y2="1">
                           <stop offset="5%" stopColor="#14b8a6" stopOpacity={0.4} />
-                          <stop offset="95%" stopColor="#14b8a6" stopOpacity={0} />
+                          <stop offset="95%" stopColor="#14b8a6" stopOpacity={0.0} />
                         </linearGradient>
                       </defs>
-                      <XAxis dataKey="date" stroke="#64748b" fontSize={11} tickLine={false} />
-                      <YAxis stroke="#64748b" fontSize={11} tickLine={false} allowDecimals={false} />
+                      <XAxis
+                        dataKey="date"
+                        stroke={theme === 'dark' ? '#64748b' : '#94a3b8'}
+                        fontSize={11}
+                        tickLine={false}
+                      />
+                      <YAxis
+                        stroke={theme === 'dark' ? '#64748b' : '#94a3b8'}
+                        fontSize={11}
+                        tickLine={false}
+                        allowDecimals={false}
+                      />
                       <Tooltip
                         contentStyle={{
                           backgroundColor: theme === 'dark' ? '#0f172a' : '#ffffff',
-                          borderColor: theme === 'dark' ? '#334155' : '#e2e8f0',
+                          borderColor: theme === 'dark' ? '#334155' : '#cbd5e1',
                           borderRadius: '12px',
-                          color: theme === 'dark' ? '#ffffff' : '#0f172a',
+                          color: theme === 'dark' ? '#fff' : '#0f172a',
+                          fontSize: '12px',
                           boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
                         }}
                       />
-                      <Area type="monotone" dataKey="clicks" stroke="#14b8a6" strokeWidth={2.5} fillOpacity={1} fill="url(#modalClickColor)" />
+                      <Area
+                        type="monotone"
+                        dataKey="clicks"
+                        stroke="#14b8a6"
+                        strokeWidth={2}
+                        fillOpacity={1}
+                        fill="url(#clickGradient)"
+                      />
                     </AreaChart>
                   </ResponsiveContainer>
                 ) : (
@@ -213,7 +229,6 @@ export function AnalyticsModal({ shortCode, onClose }) {
               </div>
             </div>
 
-            {/* Device & Referral Breakdown */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-4">
                 <div className="text-sm font-bold text-slate-900 dark:text-white flex items-center space-x-2">
@@ -272,7 +287,6 @@ export function AnalyticsModal({ shortCode, onClose }) {
               </div>
             </div>
 
-            {/* Countries Grid */}
             <div className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-4">
               <div className="text-sm font-bold text-slate-900 dark:text-white flex items-center space-x-2">
                 <Globe2 className="w-4 h-4 text-teal-600 dark:text-teal-400" />

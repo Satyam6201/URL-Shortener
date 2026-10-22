@@ -58,7 +58,6 @@ export function Navbar({ activeTab, setActiveTab, onOpenAuth }) {
     <header className="border-b border-slate-200/80 dark:border-slate-800/80 bg-white/80 dark:bg-slate-950/80 backdrop-blur-2xl sticky top-0 z-40 transition-colors duration-200 shadow-sm dark:shadow-none">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         
-        {/* Brand Logo with Glow Accent */}
         <div className="flex items-center space-x-8">
           <div
             onClick={() => handleSelectTab('shorten')}
@@ -81,7 +80,6 @@ export function Navbar({ activeTab, setActiveTab, onOpenAuth }) {
             </div>
           </div>
 
-          {/* Clean Desktop Navigation Bar */}
           <nav className="hidden md:flex items-center space-x-1 text-xs font-semibold">
             {navItems.map((item) => {
               const Icon = item.icon;
@@ -105,10 +103,8 @@ export function Navbar({ activeTab, setActiveTab, onOpenAuth }) {
           </nav>
         </div>
 
-        {/* Right Action Cluster */}
         <div className="flex items-center space-x-2.5 sm:space-x-3">
           
-          {/* Day / Night Mode Toggle Button */}
           <button
             type="button"
             onClick={toggleTheme}
@@ -123,7 +119,6 @@ export function Navbar({ activeTab, setActiveTab, onOpenAuth }) {
             )}
           </button>
 
-          {/* User Profile or Authentication Callout */}
           {user ? (
             <div className="relative" ref={userRef}>
               <button
@@ -209,7 +204,6 @@ export function Navbar({ activeTab, setActiveTab, onOpenAuth }) {
             </button>
           )}
 
-          {/* Mobile Menu Toggle */}
           <button
             type="button"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -220,7 +214,6 @@ export function Navbar({ activeTab, setActiveTab, onOpenAuth }) {
         </div>
       </div>
 
-      {/* Mobile Slide-Out Drawer Navigation */}
       {mobileMenuOpen && (
         <div className="md:hidden border-t border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-950/95 backdrop-blur-xl px-4 py-4 space-y-2 animate-in slide-in-from-top-2 duration-150">
           {navItems.map((item) => {

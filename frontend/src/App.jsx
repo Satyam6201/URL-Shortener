@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from './context/AuthContext.jsx';
 import { Navbar } from './components/Navbar.jsx';
 import { HeroShortener } from './components/HeroShortener.jsx';
@@ -127,7 +127,6 @@ export function App() {
         {activeTab === 'admin' && <AdminPanel />}
       </main>
 
-      {/* Global Minimal Footer */}
       <footer className="border-t border-slate-200/80 dark:border-slate-850/80 bg-white/70 dark:bg-slate-950/70 backdrop-blur-xl py-12 text-xs text-slate-500 dark:text-slate-400 transition-colors duration-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6 border-b border-slate-100 dark:border-slate-800/80 pb-8">
@@ -194,7 +193,6 @@ export function App() {
         </div>
       </footer>
 
-      {/* Global Modals */}
       {authModalOpen && <AuthModal onClose={() => setAuthModalOpen(false)} />}
 
       {analyticsCode && (

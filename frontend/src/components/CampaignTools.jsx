@@ -8,7 +8,6 @@ export function CampaignTools({ onOpenAnalytics, onOpenQr, onLinkCreated }) {
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-8 animate-in fade-in duration-200">
-      {/* Header & Tool Switcher */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-6 pb-6 border-b border-slate-200/80 dark:border-slate-800/80">
         <div>
           <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-600 dark:text-teal-400 text-xs font-bold tracking-wide">
@@ -23,7 +22,6 @@ export function CampaignTools({ onOpenAnalytics, onOpenQr, onLinkCreated }) {
           </p>
         </div>
 
-        {/* Segmented Control Pill */}
         <div className="inline-flex p-1.5 rounded-2xl bg-slate-100 dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-inner">
           <button
             type="button"
@@ -53,7 +51,6 @@ export function CampaignTools({ onOpenAnalytics, onOpenQr, onLinkCreated }) {
         </div>
       </div>
 
-      {/* Active Tool Sub-View */}
       {selectedTool === 'bulk' ? (
         <BulkShortener onOpenAnalytics={onOpenAnalytics} onOpenQr={onOpenQr} />
       ) : (

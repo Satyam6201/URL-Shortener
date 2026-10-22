@@ -19,12 +19,10 @@ code, pre, .font-mono {
   font-family: 'JetBrains Mono', monospace;
 }
 
-/* Smooth background transition when switching themes */
 body {
   transition: background-color 0.25s ease, color 0.25s ease;
 }
 
-/* Custom modern scrollbars for light and dark modes */
 ::-webkit-scrollbar {
   width: 7px;
   height: 7px;
@@ -57,7 +55,6 @@ body {
   background: #94a3b8;
 }
 
-/* Custom ambient background glows */
 .bg-grid-pattern {
   background-size: 36px 36px;
   background-image: 

@@ -190,10 +190,8 @@ export function HeroShortener({ onLinkCreated, onOpenAnalytics, onOpenQr }) {
   return (
     <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 space-y-10">
       
-      {/* Ambient Radial Gradient Glow */}
       <div className="absolute top-10 left-1/2 -translate-x-1/2 w-[600px] h-[320px] bg-gradient-to-tr from-teal-500/20 via-emerald-400/10 to-cyan-500/20 blur-[130px] rounded-full pointer-events-none -z-10" />
 
-      {/* Hero Headline */}
       <div className="text-center space-y-4">
         <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-700 dark:text-teal-400 text-xs font-bold tracking-wide shadow-sm backdrop-blur-md">
           <span className="w-2 h-2 rounded-full bg-teal-500 animate-pulse" />
@@ -212,11 +210,9 @@ export function HeroShortener({ onLinkCreated, onOpenAnalytics, onOpenQr }) {
         </p>
       </div>
 
-      {/* Main Shortener Card */}
       <div className="relative rounded-3xl bg-white/95 dark:bg-slate-900/90 border border-slate-200/90 dark:border-slate-800/80 ring-1 ring-slate-900/5 dark:ring-white/5 p-5 sm:p-8 shadow-2xl shadow-teal-500/5 backdrop-blur-2xl transition-all duration-200">
         <form onSubmit={handleSubmit} className="space-y-5">
           
-          {/* Main URL Input Field + Primary CTA */}
           <div className="relative flex flex-col sm:flex-row items-stretch gap-3">
             <div className="relative flex-1 group">
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 dark:text-slate-500 group-focus-within:text-teal-500 transition-colors">
@@ -262,7 +258,6 @@ export function HeroShortener({ onLinkCreated, onOpenAnalytics, onOpenQr }) {
             </button>
           </div>
 
-          {/* Quick Assistant Pills Bar */}
           <div className="flex flex-wrap items-center justify-between gap-3 pt-1 text-xs">
             <div className="flex flex-wrap items-center gap-2">
               <button
@@ -293,7 +288,6 @@ export function HeroShortener({ onLinkCreated, onOpenAnalytics, onOpenQr }) {
               </button>
             </div>
 
-            {/* Live Security Indicator */}
             {safetyStatus && (
               <div
                 className={`inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-bold ${
@@ -312,7 +306,6 @@ export function HeroShortener({ onLinkCreated, onOpenAnalytics, onOpenQr }) {
             )}
           </div>
 
-          {/* AI Recommended Slugs */}
           {suggestedSlugs.length > 0 && (
             <div className="p-4 rounded-2xl bg-teal-50/50 dark:bg-slate-950/60 border border-teal-200 dark:border-teal-500/30 space-y-2 animate-in fade-in duration-150">
               <div className="flex items-center space-x-1.5 text-xs text-teal-800 dark:text-teal-400 font-bold">
@@ -341,11 +334,9 @@ export function HeroShortener({ onLinkCreated, onOpenAnalytics, onOpenQr }) {
             </div>
           )}
 
-          {/* Advanced Controls Accordion */}
           {showAdvanced && (
             <div className="pt-4 border-t border-slate-200 dark:border-slate-800 space-y-4 animate-in fade-in duration-150">
               
-              {/* Tab Navigation */}
               <div className="flex items-center space-x-1 border-b border-slate-200 dark:border-slate-800 pb-2 text-xs font-bold">
                 <button
                   type="button"
@@ -382,7 +373,6 @@ export function HeroShortener({ onLinkCreated, onOpenAnalytics, onOpenQr }) {
                 </button>
               </div>
 
-              {/* General Tab */}
               {activeTab === 'basic' && (
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
                   <div className="space-y-1.5">
@@ -458,7 +448,6 @@ export function HeroShortener({ onLinkCreated, onOpenAnalytics, onOpenQr }) {
                 </div>
               )}
 
-              {/* Security Tab */}
               {activeTab === 'security' && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                   <div className="space-y-1.5">
@@ -529,7 +518,6 @@ export function HeroShortener({ onLinkCreated, onOpenAnalytics, onOpenQr }) {
                 </div>
               )}
 
-              {/* Targeting Tab */}
               {activeTab === 'targeting' && (
                 <div className="space-y-4 text-sm">
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -638,7 +626,6 @@ export function HeroShortener({ onLinkCreated, onOpenAnalytics, onOpenQr }) {
             </div>
           )}
 
-          {/* Inline Error Message */}
           {error && (
             <div className="p-4 rounded-2xl bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/20 text-rose-700 dark:text-rose-400 text-xs font-medium flex items-center space-x-2">
               <ShieldAlert className="w-4 h-4 flex-shrink-0" />
@@ -647,7 +634,6 @@ export function HeroShortener({ onLinkCreated, onOpenAnalytics, onOpenQr }) {
           )}
         </form>
 
-        {/* Shortened Result Card */}
         {createdResult && (
           <div className="mt-8 pt-6 border-t border-slate-200 dark:border-slate-800 animate-in fade-in zoom-in-95 duration-200">
             <div className="p-5 sm:p-6 rounded-2xl bg-slate-50/90 dark:bg-slate-950/80 border border-teal-500/40 ring-1 ring-teal-500/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5 shadow-xl shadow-teal-500/5">
@@ -678,7 +664,6 @@ export function HeroShortener({ onLinkCreated, onOpenAnalytics, onOpenQr }) {
                 </p>
               </div>
 
-              {/* Action Buttons */}
               <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-end">
                 <button
                   type="button"

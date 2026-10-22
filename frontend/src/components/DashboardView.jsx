@@ -116,7 +116,6 @@ export function DashboardView({ onOpenAnalytics, onOpenQr, onOpenEdit, onSwitchT
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
       
-      {/* Header with Title and Create Action */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">Your Links Dashboard</h2>
@@ -132,7 +131,6 @@ export function DashboardView({ onOpenAnalytics, onOpenQr, onOpenEdit, onSwitchT
         </button>
       </div>
 
-      {/* Top 4 KPI Metrics */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm dark:shadow-none flex items-center space-x-4">
           <div className="w-12 h-12 rounded-xl bg-teal-50 dark:bg-teal-500/10 text-teal-600 dark:text-teal-400 flex items-center justify-center">
@@ -186,7 +184,6 @@ export function DashboardView({ onOpenAnalytics, onOpenQr, onOpenEdit, onSwitchT
         </div>
       </div>
 
-      {/* Filter and Search Bar */}
       <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm dark:shadow-none space-y-4">
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
           <div className="relative flex-1">
@@ -241,7 +238,6 @@ export function DashboardView({ onOpenAnalytics, onOpenQr, onOpenEdit, onSwitchT
         </div>
       </div>
 
-      {/* Links List / Table */}
       <div className="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 overflow-hidden shadow-xl shadow-slate-900/5 dark:shadow-none">
         {loading ? (
           <div className="py-20 text-center text-slate-500 dark:text-slate-400 text-sm space-y-3">
@@ -344,7 +340,6 @@ export function DashboardView({ onOpenAnalytics, onOpenQr, onOpenEdit, onSwitchT
                     )}
                   </div>
 
-                  {/* Actions & Click Counter */}
                   <div className="flex items-center space-x-4 self-end lg:self-center">
                     <div className="text-right">
                       <div className="text-xl font-black text-slate-900 dark:text-white font-mono">{link.clicksCount}</div>
@@ -404,7 +399,6 @@ export function DashboardView({ onOpenAnalytics, onOpenQr, onOpenEdit, onSwitchT
           </div>
         )}
 
-        {/* Pagination Controls */}
         {pagination.pages > 1 && (
           <div className="p-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
             <span>
