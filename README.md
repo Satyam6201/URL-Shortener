@@ -1,297 +1,260 @@
-# SnipURL — High-Performance URL Shortener, Fast Edge Redirection & Live Telemetry Platform
+# SnipURL
 
-An enterprise-grade, high-throughput URL shortening and link intelligence platform designed to handle large-scale link redirection with sub-3ms latency, real-time telemetry streaming, Day & Night themes, developer automation, and AI-powered link safety.
+SnipURL is a URL shortener with a React dashboard and an Express API. It supports public short-link creation, authenticated link management, redirect rules, click analytics, optional AI-assisted URL features, and developer API keys.
 
-**Designed & Developed by Satyam Kumar Mishra**
+> **Deployment status:** This repository is a working development project, not a hardened public production service. Review the security and reliability limitations near the end of this document before exposing an instance to the internet.
 
----
+**Designed and developed by Satyam Kumar Mishra**
 
-## 1. System Architecture
+## Features
 
-SnipURL is architected around a high-performance read-heavy topology. Redirection paths bypass disk storage entirely through a Redis cache-aside layer, while click telemetry is ingested asynchronously via a BullMQ message queue.
+### Links and redirects
 
-```
-                                  [ Client Traffic ]
-                                          │
-                                          ▼
-                      ┌───────────────────────────────────────┐
-                      │          Nginx Reverse Proxy          │
-                      │     (Gateway, Port 80 & Port 3000)    │
-                      └───────────────────┬───────────────────┘
-                                          │
-                    ┌─────────────────────┴─────────────────────┐
-                    │                                           │
-                    ▼ (Static Single Page App)                  ▼ (/api/* and /:shortCode)
-        ┌───────────────────────┐                   ┌───────────────────────────────┐
-        │    React Dashboard    │                   │      Express API Services     │
-        │ (Day/Night Theme, UI) │                   │  (Base62 Engine, SSRF Guard)  │
-        └───────────────────────┘                   └───────────────┬───────────────┘
-                                                                    │
-                    ┌───────────────────────────────────────────────┼───────────────────────────────────────────────┐
-                    ▼                                               ▼                                               ▼
-        ┌───────────────────────┐                       ┌───────────────────────┐                       ┌───────────────────────┐
-        │        Redis 7        │                       │   MongoDB Atlas 7.0   │                       │     BullMQ Worker     │
-        │ ───────────────────── │                       │ ───────────────────── │                       │ ───────────────────── │
-        │ • Cache-Aside (Sub-3ms│                       │ • User Accounts       │                       │ • Asynchronous Ingest │
-        │ • Negative Caching    │                       │ • Shortcode Registry  │◄──────────────────────┤ • GeoIP Resolution    │
-        │ • Atomic Base62 INCR  │                       │ • Click Telemetry     │                       │ • Device Classification│
-        │ • 2-Tier Rate Limiter │                       │ • Campaign Tags       │                       │ • Batch DB Ingestion  │
-        │ • BullMQ Job Queue    │                       │ • Webhooks Registry   │                       └───────────────────────┘
-        │ • Pub/Sub Live Stream │                       │ • Audit Logs          │
-        └───────────────────────┘                       └───────────────────────┘
-                    │                                               │
-                    ▼                                               ▼
-        ┌───────────────────────┐                       ┌───────────────────────┐
-        │  Google Gemini Engine │                       │  Webhook Dispatcher   │
-        │ ───────────────────── │                       │ ───────────────────── │
-        │ • Malicious Heuristics│                       │ • HMAC-SHA256 Signing │
-        │ • Smart Slug Synthesizer                      │ • Event: Link Clicked │
-        │ • Natural Language Q&A│                       │ • Event: Link Expired │
-        └───────────────────────┘                       └───────────────────────┘
+- Create links with generated Base62 short codes or custom aliases.
+- Optional password protection, activation and expiration dates, click limits, and preview pages.
+- Device and country targeting fields, plus A/B variants.
+- Bulk link creation through the authenticated API (up to 100 URLs per request).
+- QR code generation and link listing, search, category, folder, and status filters.
+- Basic UTM URL-building tools in the dashboard.
+
+### Analytics and developer tools
+
+- Click records include a hashed IP identifier, country/city where available, device, browser, operating system, referrer, and bot classification.
+- Link-level analytics, overview dashboard, and per-link CSV export endpoints.
+- A server-sent events (SSE) endpoint and dashboard view for live click events.
+- Optional AI-assisted slug suggestions, URL categorization, safety heuristics, and analytics summaries.
+- API keys, webhook subscriptions, team/workspace endpoints, custom-domain records, and admin endpoints.
+
+Some options are stored as link configuration but are not fully applied by the redirect or analytics flows. See [Known limitations](#known-limitations) before relying on them.
+
+## Architecture
+
+```text
+Browser
+  ├── Nginx gateway ── React/Vite static frontend
+  │                └── Express API and short-link redirects
+  ├── Redis ── cache, counters, rate limits, and BullMQ queue
+  └── MongoDB ── users, URLs, click records, and related data
+                         ▲
+                         └── BullMQ click worker
 ```
 
----
+- **Frontend:** React 18, Vite, Tailwind CSS, Lucide icons, and Recharts.
+- **Backend:** Node.js 20+, Express 4, and Mongoose 8.
+- **Data and jobs:** MongoDB and Redis; click events are submitted to BullMQ and persisted by a worker when Redis is available.
+- **Gateway:** Nginx serves the frontend and proxies API and redirect requests.
+- **AI:** Gemini is optional. Local heuristics and fallback responses are used in some AI flows when the service or key is unavailable.
 
-## 2. Senior Engineering Decisions & Trade-Offs
+Short codes are generated by encoding a Redis counter as Base62, with a MongoDB counter fallback when Redis is unavailable. Custom aliases are checked for reserved names and uniqueness; the database unique index is the final collision guard.
 
-### Sub-3ms Cache-Aside Redirection
-* **In-Memory First**: The redirection route `GET /:shortCode` evaluates the Redis memory layer first (`url:{shortCode}`). Cache hits respond immediately with an HTTP 302 redirect without touching database disk I/O.
-* **Negative Caching**: Non-existent codes are cached for 60 seconds (`{ notFound: true }`). This defends against cache-penetration denial-of-service attacks that attempt to exhaust database thread pools through automated enumeration.
-* **HTTP 302 Redirection**: Standard 302 Found redirection is used so that every click event flows through the gateway for telemetry, while preventing aggressive client-side browser caching that skews analytics.
+## Requirements
 
-### Atomic Base62 Generation (Zero Database Collisions)
-* **Algorithmic Guarantee**: Traditional platforms compute an MD5 or SHA-256 hash of the target URL and truncate it, requiring repetitive database existence checks to resolve collisions. SnipURL derives its shortcodes from a Redis atomic increment counter (`INCR url_counter`) mapped to Base62 (`0-9`, `a-z`, `A-Z`).
-* **High Namespace Capacity**: Starting at offset `10,000,000`, 6-character shortcodes provide over 56.8 billion deterministic, collision-free identifiers with O(1) time complexity.
-* **High-Availability Fallback**: If Redis memory is exhausted or unavailable, the system fails over transparently to an atomic sequence generator inside MongoDB.
+- Docker Engine and Docker Compose v2 for the container setup.
+- Node.js 20 or newer for local development and tests.
+- A MongoDB instance. The provided Compose configuration does **not** start MongoDB; configure `MONGO_URI` to point to an instance you can access.
 
-### Two-Tier Rate Limiting & User Quotas
-* **Tier 1 (Burst Protection)**: Sliding-window token bucket tracking request frequencies per IP address (20 creations/minute) to suppress automated bots.
-* **Tier 2 (24-Hour Rolling Quotas)**: Redis counters track link creation against user subscriptions (Anonymous: 5/day; Free: 25/day; Pro: 100/day; Enterprise: 1,000+/day).
-* **RFC Compliance**: When thresholds are exceeded, the server returns `HTTP 429 Too Many Requests` with a structured payload and standard `Retry-After` header.
+## Configuration
 
-### Decoupled Telemetry Processing via BullMQ
-* Redirection handlers must not be burdened with database write latency. Click events (anonymized IP hash, GeoIP country, city, user agent, operating system, device family, referrer) are placed onto an in-memory BullMQ queue in under 1 millisecond.
-* A dedicated background worker consumes events in micro-batches and performs bulk upserts into MongoDB, ensuring continuous redirection throughput even under severe traffic spikes.
+Compose reads `backend/.env` for both the API and worker. If that file does not already exist, create it from the checked-in template:
 
-### Defense-in-Depth SSRF & Namespace Security
-* **SSRF Guard**: All destination URLs undergo DNS pre-flight inspection before insertion. The system strictly rejects RFC 1918 private subnets (`10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`), loopback interfaces (`127.0.0.0/8`, `::1`), link-local metadata endpoints (`169.254.169.254`), and internal Docker container DNS names.
-* **Namespace Reservation**: Protected pathnames (`/api`, `/health`, `/metrics`, `/login`, `/dashboard`, `/admin`) are safeguarded against custom slug hijacking.
-* **Cryptographic Signatures**: User passcodes and credentials use Bcrypt with a salt factor of 10. Webhook dispatches are signed with HMAC-SHA256 signatures.
-
----
-
-## 3. Modern Design System & User Experience
-
-### Day & Night (Light / Dark) Theme Engine
-* **Persistent Preference Sync**: Automatically detects and respects system OS preferences (`prefers-color-scheme`), with state persisted in `localStorage` (`snipurl_theme`).
-* **Zero-Flash Initialization**: Inline client script in `index.html` prevents white or dark flashes during initial page load.
-* **Custom Ambient Backgrounds**: Subtly textured background grid (`.bg-grid-pattern`), ambient radial glow orbs, and styled scrollbars for both Light and Dark modes.
-* **Sun/Moon Micro-Interaction**: One-click theme toggle in the header with smooth rotational transitions.
-
-### Human-Centric, Decluttered Layout
-* **Streamlined Top Navigation**: Removed multi-tier dropdown bloat in favor of clear, intuitive navigation items:
-  1. **Shortener**: Hero generator with live safety badge, AI slug suggestions, and drawer controls.
-  2. **My Links**: Searchable link directory with category tags, active/disabled toggles, QR downloads, and individual analytics.
-  3. **Live Stream**: Real-time SSE telemetry feed streaming live visitors and automated bot detection.
-  4. **Campaign Tools**: Unified suite with a segmented pill toggle combining **Bulk Shortening** and **UTM Campaign Attribution**.
-  5. **Developer API**: Interactive OpenAPI 3.0 documentation and copy-paste code snippets for cURL, Node.js, and Python.
-* **Subtle Glassmorphism & Glow Effects**:
-  - `backdrop-blur-2xl` glass header with border shine.
-  - Ambient radial gradients (`blur-[130px]`) that subtly illuminate the main shortener card.
-  - Hover lift states and glowing focus rings on inputs (`focus:ring-4 focus:ring-teal-500/10`).
-* **Responsive Mobile Drawer**: Fluid hamburger navigation with touch-friendly 44px targets and zero horizontal scroll breakage.
-
----
-
-## 4. Comprehensive Feature Matrix
-
-### Link Routing & Access Control
-* **Passcode Protection**: Protect sensitive destinations with a hashed passcode gate. Visitors enter the passcode on a dedicated landing screen to unlock the target.
-* **One-Time Burn Links**: Self-destructing links that expire and purge automatically after a single successful redirect.
-* **Click Quotas**: Set strict visitor caps (e.g., first 500 visitors). Once reached, the link automatically deactivates.
-* **Scheduled Activation**: Defer link availability until a specified future date and time (`activateAt`).
-* **Device Targeting**: Dynamically route traffic based on device type (iOS users to App Store, Android to Google Play, desktop users to standard web).
-* **Geo-Routing**: Route traffic based on visitor country codes (e.g., US visitors to a regional store, Indian visitors to a localized page).
-* **Bulk Shortening**: Ingest up to 100 URLs per batch via CSV file upload or multi-line text input, with instant CSV result export.
-* **UTM Campaign Builder**: Generate standardized marketing attribution parameters (`utm_source`, `utm_medium`, `utm_campaign`, `utm_term`, `utm_content`) with preset templates.
-
-### Telemetry & Real-Time Analytics
-* **Real-Time Telemetry Stream**: Server-Sent Events (SSE) stream at `/api/analytics/stream` providing live incoming click telemetry without polling.
-* **Bot & Crawler Filtering**: Automatic identification and isolation of automated web spiders, crawlers, and scrapers to ensure verified human metrics.
-* **Granular Drill-Downs**: Interactive distributions across geographic countries, cities, device families, operating systems, browsers, and referring platforms.
-* **Data Portability**: Full CSV export capabilities for link-level and account-level analytics reports.
-
-### AI Link Intelligence (Google Gemini)
-* **Smart Slug Generator**: Evaluates destination URLs to produce readable, context-aware kebab-case slugs.
-* **Malicious URL Detection**: Heuristic scanning detecting phishing patterns, high-entropy suspicious hostnames, and known malicious top-level domains.
-* **Conversational Analytics**: Natural language Q&A interface powered by Gemini 3.8 Flash, answering complex query questions over telemetry data.
-
-### Developer Platform & Webhooks
-* **Developer REST API**: Secure programmatic access using `snip_live_...` API keys with per-key rate limiting.
-* **HMAC Webhooks**: Automated HTTP webhooks with HMAC-SHA256 signatures for `click` and `expire` event streaming.
-* **Interactive OpenAPI 3.0**: Interactive API documentation served directly at `/api/docs`.
-
----
-
-## 5. Technology Stack
-
-| Layer | Component | Technical Justification |
-| :--- | :--- | :--- |
-| **Edge Gateway** | Nginx 1.31 Alpine | High-concurrency connection pooling, gzip compression, static asset caching, SSL termination |
-| **Frontend Dashboard** | React 19 + Tailwind CSS + Lucide | Fast component hydration, Day/Night theme system, responsive glassmorphism |
-| **Core API Engine** | Node.js 20 LTS + Express | High-concurrency asynchronous I/O, event-loop efficiency for read-heavy workloads |
-| **Caching & Sequencing** | Redis 7 Alpine | Sub-millisecond in-memory key-value lookups, atomic `INCR` Base62 sequence generation, Pub/Sub |
-| **Job Queue** | BullMQ | Redis-backed asynchronous worker queue ensuring zero latency overhead on redirects |
-| **Primary Database** | MongoDB Atlas 7.0 | Distributed multi-region document storage, flexible telemetry schema, B-tree indexes |
-| **AI Intelligence** | Google Gemini 3.8 Flash | Low-latency inference for real-time safety classification and conversational insights |
-| **Containerization** | Docker & Docker Compose | Multi-stage production container builds ensuring deterministic multi-environment deployment |
-
----
-
-## 6. API Reference
-
-All requests accept and return standard `application/json` payloads. Authentication is provided via Bearer JWT tokens or `X-API-Key` headers.
-
-### URL Operations
-| Method | Endpoint | Description | Auth |
-| :--- | :--- | :--- | :--- |
-| `POST` | `/api/urls` | Create shortened link with targeting, passcode, expiry | Optional |
-| `POST` | `/api/urls/bulk` | Batch shorten up to 100 links via array payload | Optional |
-| `GET` | `/api/urls` | Retrieve paginated links with filters (search, category, status) | Required |
-| `GET` | `/api/urls/:id` | Retrieve single URL configuration | Required |
-| `PATCH` | `/api/urls/:id` | Update destination, targeting, status, or metadata | Required |
-| `DELETE` | `/api/urls/:id` | Purge shortcode and invalidate Redis cache | Required |
-| `GET` | `/api/urls/quota` | Check current rate limit and remaining daily allowance | Public |
-
-### Redirection Engine
-| Method | Endpoint | Description | Auth |
-| :--- | :--- | :--- | :--- |
-| `GET` | `/:shortCode` | Low-latency 302 redirect with asynchronous telemetry | Public |
-| `POST` | `/api/urls/:shortCode/verify-passcode` | Unlock password-protected link destination | Public |
-
-### Analytics & Telemetry
-| Method | Endpoint | Description | Auth |
-| :--- | :--- | :--- | :--- |
-| `GET` | `/api/analytics/:shortCode` | Detailed time-series, geo, device, and referrer metrics | Required |
-| `GET` | `/api/analytics/overview` | Account-level aggregate metrics across all links | Required |
-| `GET` | `/api/analytics/stream` | Server-Sent Events (SSE) live click telemetry feed | Required |
-| `GET` | `/api/analytics/:shortCode/export/csv` | Export link click records as CSV | Required |
-| `GET` | `/api/analytics/overview/export/csv` | Export entire account telemetry as CSV | Required |
-| `POST` | `/api/analytics/ask-ai` | Conversational natural language query over metrics | Required |
-
-### Developer Keys & Webhooks
-| Method | Endpoint | Description | Auth |
-| :--- | :--- | :--- | :--- |
-| `GET` | `/api/keys` | List active developer API keys | Required |
-| `POST` | `/api/keys` | Generate new developer REST API key | Required |
-| `DELETE` | `/api/keys/:key` | Revoke developer API key | Required |
-| `GET` | `/api/webhooks` | List registered event webhooks | Required |
-| `POST` | `/api/webhooks` | Register new webhook subscription | Required |
-| `POST` | `/api/webhooks/:id/test` | Dispatch test HMAC ping payload to target URL | Required |
-| `DELETE` | `/api/webhooks/:id` | Remove webhook subscription | Required |
-
-### Platform Administration
-| Method | Endpoint | Description | Auth |
-| :--- | :--- | :--- | :--- |
-| `GET` | `/api/admin/stats` | Global platform metrics, user counts, cache hit ratio | Superadmin |
-| `GET` | `/api/admin/users` | Platform user directory with suspension controls | Superadmin |
-| `PATCH` | `/api/admin/users/:id/status` | Suspend or reactivate user accounts | Superadmin |
-| `GET` | `/api/admin/abuse-reports` | Review flagged links submitted by users | Superadmin |
-| `POST` | `/api/abuse/report` | Submit abuse report for malicious shortlink | Public |
-
-### Health & Observability
-| Method | Endpoint | Description | Auth |
-| :--- | :--- | :--- | :--- |
-| `GET` | `/health` | Basic service liveness probe | Public |
-| `GET` | `/health/ready` | Deep readiness probe (verifies MongoDB & Redis) | Public |
-| `GET` | `/metrics` | Prometheus metrics scrape target | Public |
-| `GET` | `/api/docs` | OpenAPI 3.0 specification | Public |
-
----
-
-## 7. Quick Start & Production Deployment
-
-### Prerequisites
-* Docker Engine 24.0+ and Docker Compose v2+
-* Node.js 20 LTS (for local non-container development)
-
-### Step 1: Environment Configuration
-Copy the sample environment file:
 ```bash
-cp .env.example .env
+cp .env.example backend/.env
 ```
 
-Verify your environment configuration values:
-```env
-PORT=5000
-NODE_ENV=production
-BASE_URL=http://localhost:3000
+Edit `backend/.env` before starting the services:
 
-MONGO_URI=mongodb+srv://<username>:<password>@your-cluster.mongodb.net/urlshortener?retryWrites=true&w=majority
-REDIS_URL=redis://redis:6379
+| Variable | Purpose |
+| --- | --- |
+| `NODE_ENV` | Runtime environment. |
+| `PORT` | Backend listen port; defaults to `5000`. |
+| `BASE_URL` | Public base URL used when constructing short links. For the default Compose gateway, use `http://localhost:3000`. |
+| `CLIENT_URL` | Frontend base URL used by redirect status and preview pages. For the default Compose gateway, use `http://localhost:3000`. |
+| `MONGO_URI` | MongoDB connection URI. The template value is an example and must be replaced with a valid URI. |
+| `REDIS_URL` | Redis connection URI. Use `redis://redis:6379` in Compose; use `redis://localhost:6379` for a host-run backend with the Compose Redis port published. |
+| `JWT_SECRET` | JWT signing secret. Set a unique, high-entropy secret; do not use the source-code fallback. |
+| `JWT_EXPIRES_IN` | JWT lifetime; defaults to `7d`. |
+| `GEMINI_API_KEY` | Optional API key for Gemini-backed features. |
+| `GOOGLE_SAFE_BROWSING_KEY` | Optional key for the Google Safe Browsing lookup. |
+| `DAILY_QUOTA_REGISTERED` | Configured daily URL quota for authenticated users. |
+| `DAILY_QUOTA_ANONYMOUS` | Configured daily URL quota for anonymous users. |
+| `CACHE_TTL_SECONDS` | Positive-link cache lifetime. |
+| `NEGATIVE_CACHE_TTL_SECONDS` | Not-found cache lifetime. |
+| `REDIRECT_STATUS_CODE` | Redirect response status; defaults to `302`. |
 
-JWT_SECRET=your-production-jwt-secret-key-here
-GEMINI_API_KEY=your-gemini-api-key-here
-```
+Do not commit `.env` files or put production credentials in documentation. The checked-in `.env.example` is a template, not a usable production configuration.
 
-### Step 2: Launch All Services
-Execute the single-command multi-container startup:
+## Run with Docker Compose
+
 ```bash
 docker compose up -d --build
 ```
 
-Docker Compose initiates 6 isolated services:
-1. `url_shortener_nginx` — Public gateway reverse proxy (Ports `80`, `3000`)
-2. `url_shortener_frontend` — Production Vite/React Single Page Application
-3. `url_shortener_backend` — Core Express REST API (Port `5000`)
-4. `url_shortener_worker` — BullMQ asynchronous click worker
-5. `url_shortener_redis` — In-memory speed layer (Port `6379`)
-6. `url_shortener_mongodb` — Local fallback database (Port `27017`)
+The current Compose file starts **five** services:
 
-### Step 3: Populate Sample Data
-Seed the database with sample links, rich visitor click telemetry, and a pre-configured account:
+| Service | Purpose | Host port |
+| --- | --- | --- |
+| `nginx` | Public frontend/API/redirect gateway | `3000`, `8080` |
+| `frontend` | Builds and serves the React application | Internal |
+| `backend` | Express API and redirects | `5000` |
+| `worker` | BullMQ click worker | Internal |
+| `redis` | Cache, counters, and queue backend | `6379` |
+
+MongoDB is external to this Compose setup and must be configured in `MONGO_URI`. Open `http://localhost:3000` after the services are healthy. The backend health endpoints are available through the gateway under `/health`.
+
+To inspect service status and logs:
+
 ```bash
-docker compose exec backend npm run seed
+docker compose ps
+docker compose logs -f backend worker
 ```
 
-**Pre-Configured Demo Credentials**:
-* **Email**: `demo@example.com`
-* **Password**: `password123`
-* **Account Tier**: Pro Plan (100 links/day, Webhooks enabled)
+## Local development
 
----
+Install backend and frontend dependencies separately:
 
-## 8. Verification & Benchmarking
-
-### Running the Test Suite
-The automated test suite runs inside the Node 20 environment, testing Base62 algorithms, SSRF defenses, AI safety heuristics, and slug validation:
 ```bash
-docker compose exec backend npm test
-```
-```
-# tests 32
-# pass 32
-# fail 0
-# duration_ms 16253.25
+cd backend && npm ci
+cd ../frontend && npm ci
 ```
 
-### High-Concurrency Redirection Benchmark
-Measure the cache-aside latency profile under concurrent load:
+Configure `backend/.env` with MongoDB and Redis URIs reachable from the host. Then run the API and frontend in separate terminals:
+
 ```bash
-docker compose exec -i backend node - < scripts/load-test.js
+cd backend && npm run dev
 ```
 
-**Benchmark Results (1,000 requests, 50 concurrency)**:
-* **Success Rate**: 100.0% (1,000 successes, 0 errors)
-* **Throughput**: ~435+ req/sec on local Docker virtualization
-* **Min Latency**: 37 ms
-* **Median Latency (p50)**: 92 ms
-* **Production Redis Latency (Native)**: 1–5 ms cache hits
+```bash
+cd frontend && npm run dev
+```
 
----
+The Vite development server runs on port `3000`. In development, the API starts an in-process click worker by default. Avoid starting another worker unless you intentionally want multiple queue consumers. To run a separate worker instead, use a non-development `NODE_ENV` for the API and start the worker with:
 
-## 9. Author & Attribution
+```bash
+cd backend && npm run worker:dev
+```
 
-**Designed & Developed by Satyam Kumar Mishra**  
-Lead Software Engineer & Architect  
-*© 2026 Satyam Kumar Mishra. All rights reserved.*
+
+## API overview
+
+All API endpoints are under `/api`. JSON request bodies should use `Content-Type: application/json`. Authenticated endpoints accept a JWT bearer token or an `X-API-Key` header.
+
+### Authentication and links
+
+| Method | Endpoint | Authentication | Description |
+| --- | --- | --- | --- |
+| `POST` | `/api/auth/register` | Public | Register an account. |
+| `POST` | `/api/auth/login` | Public | Sign in. |
+| `GET` | `/api/auth/me` | Required | Get the current account. |
+| `POST` | `/api/auth/logout` | Public | Clear the auth cookie. |
+| `POST` | `/api/urls` | Optional | Create a short link. |
+| `POST` | `/api/urls/bulk` | Required | Create up to 100 links in one request. |
+| `GET` | `/api/urls` | Required | List the account's links with pagination and filters. |
+| `GET` | `/api/urls/quota` | Optional | Read the configured daily quota counters. |
+| `GET` | `/api/urls/preview/:shortCode` | Public | Read preview metadata for a link. |
+| `POST` | `/api/urls/verify-password` | Public | Verify a protected link password. |
+| `GET` | `/api/urls/:id` | Required | Get one owned link. |
+| `PATCH` | `/api/urls/:id` | Required | Update one owned link. |
+| `DELETE` | `/api/urls/:id` | Required | Delete an owned link. |
+| `GET` | `/:shortCode` | Public | Resolve a short link and record click telemetry. |
+
+### Analytics and AI
+
+| Method | Endpoint | Authentication | Description |
+| --- | --- | --- | --- |
+| `GET` | `/api/analytics/overview` | Required | Account-level link/click overview. |
+| `GET` | `/api/analytics/:shortCode` | Optional | Link analytics; ownership is checked for account-owned links. |
+| `GET` | `/api/analytics/:shortCode/export/csv` | Optional | Export up to 5,000 click records for a link. |
+| `GET` | `/api/analytics/stream` | See limitation below | SSE click stream. |
+| `POST` | `/api/analytics/ask-ai` | Optional | Ask a natural-language question about traffic aggregates. |
+| `POST` | `/api/ai/suggest-slugs` | Public | Suggest short slugs for a URL. |
+| `POST` | `/api/ai/analyze-safety` | Public | Run URL safety heuristics and optional Safe Browsing lookup. |
+| `POST` | `/api/ai/categorize` | Public | Suggest a category for a URL. |
+
+### API keys, webhooks, teams, and domains
+
+| Method | Endpoint | Authentication | Description |
+| --- | --- | --- | --- |
+| `GET`, `POST` | `/api/keys` | Required | List or create API keys. |
+| `DELETE` | `/api/keys/:key` | Required | Revoke an API key. |
+| `GET`, `POST` | `/api/webhooks` | Required | List or register webhook subscriptions. |
+| `POST` | `/api/webhooks/:id/test` | Required | Send a test webhook. |
+| `DELETE` | `/api/webhooks/:id` | Required | Delete a webhook. |
+| `GET` | `/api/teams` | Required | Get or create the current user's workspace. |
+| `POST` | `/api/teams/invite` | Required | Add a workspace member record. |
+| `DELETE` | `/api/teams/members/:memberUserId` | Required | Remove a workspace member. |
+| `GET`, `POST` | `/api/domains` | Required | List or register a custom-domain record. |
+| `POST` | `/api/domains/:id/verify` | Required | Check a domain verification TXT record. |
+| `DELETE` | `/api/domains/:id` | Required | Delete a domain record. |
+
+### Administration and operations
+
+| Method | Endpoint | Authentication | Description |
+| --- | --- | --- | --- |
+| `POST` | `/api/admin/abuse` | Public | Submit an abuse report. |
+| `GET` | `/api/admin/stats` | Admin | Read global platform counts. |
+| `GET` | `/api/admin/users` | Admin | List users. |
+| `PATCH` | `/api/admin/users/:id/toggle` | Admin | Toggle a user's active status. |
+| `GET` | `/api/admin/abuse` | Admin | List abuse reports. |
+| `POST` | `/api/admin/abuse/:id/action` | Admin | Ban or dismiss an abuse report. |
+| `GET` | `/health` | Public | Liveness/status response. |
+| `GET` | `/health/live` | Public | Liveness probe. |
+| `GET` | `/health/ready` | Public | Readiness status; MongoDB is required, Redis may be degraded. |
+| `GET` | `/metrics` | Public | Prometheus metrics. |
+| `GET` | `/api/docs` | Public | OpenAPI JSON document. |
+
+The API surface is broader than the generated OpenAPI document, which currently describes only selected endpoints.
+
+## Tests and production build
+
+Run the backend tests with Node.js 20 or newer:
+
+```bash
+cd backend
+npm test
+```
+
+Build the frontend:
+
+```bash
+cd frontend
+npm run build
+```
+
+The current backend tests cover Base62 encoding, slug validation, URL safety heuristics, and AI helper behavior. They do not provide end-to-end coverage for authentication, database access, redirects, quotas, webhooks, or the frontend.
+
+## Demo seed data
+
+The seed script creates a demo account and sample links/click history:
+
+```bash
+docker compose exec backend node src/seed.js
+```
+
+Demo sign-in:
+
+- Email: `demo@example.com`
+- Password: `password123`
+
+**Only seed a disposable development database.** The script deletes and recreates the demo user, replaces sample links with matching short codes, and inserts synthetic click records. Do not use the demo credentials in a deployed environment.
+
+## Known limitations
+
+Address these before treating the service as production-ready:
+
+- The JWT configuration has a hard-coded fallback. Production deployments must provide a unique secret; startup does not currently enforce this.
+- Redis-backed rate limiting and daily quotas fail open when Redis is unavailable. The bulk-create route also does not use the daily-quota middleware.
+- The SSE route currently has no authentication or account-level filtering. Do not expose it publicly until access control is implemented. The frontend also expects a different event payload shape than the backend emits.
+- Webhook destinations are fetched by the server without SSRF-safe destination validation. URL metadata fetching also needs redirect-aware SSRF protections.
+- Domain verification currently marks a domain verified even when the TXT record is not found. Do not rely on it as proof of ownership.
+- Click-limit and one-time-link decisions are not atomic under concurrent requests; cached click counts can be stale. The worker's in-memory batch may also be lost if persistence fails or the process exits unexpectedly.
+- The overview CSV link in the frontend does not have a matching backend route. Only per-short-code CSV export is implemented.
+- Team endpoints create workspace/member records but do not implement invitation delivery or complete team-scoped authorization.
+- Several routes or stored fields are present without a complete feature path (for example, UTM metadata is not automatically appended during redirect).
+- The API key values are stored in the database and returned by the key-list route. Treat database access as sensitive and rotate keys if exposed; hashed-at-rest key storage is recommended.
+- The Docker Compose stack does not include MongoDB, TLS termination, backups, or a production secrets manager. The gateway currently publishes ports `3000` and `8080`, not `80`.
+- AI tests can call the configured external Gemini service; mock external AI calls for deterministic CI runs.
+- Metrics and health endpoints are public by default. Restrict them at the network or proxy layer when deploying.
+
+## License and attribution
+
+Designed and developed by Satyam Kumar Mishra. No license file is currently included in this repository; contact the author for licensing terms.
