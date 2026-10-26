@@ -4,6 +4,7 @@ import { Click } from '../models/Click.js';
 import { ReportAbuse } from '../models/ReportAbuse.js';
 import { AuditLog } from '../models/AuditLog.js';
 import { invalidateUrl } from '../services/redisService.js';
+import { escapeRegex } from '../utils/ssrfValidator.js';
 
 export async function getAdminStats(req, res, next) {
   try {
@@ -37,10 +38,11 @@ export async function listAdminUsers(req, res, next) {
   try {
     const { page = 1, limit = 20, search = '' } = req.query;
     const query = {};
-    if (search) {
+    if (search && search.trim()) {
+      const escaped = escapeRegex(search.trim());
       query.$or = [
-        { name: { $regex: search, $options: 'i' } },
-        { email: { $regex: search, $options: 'i' } },
+        { name: { $regex: escaped, $options: 'i' } },
+        { email: { $regex: escaped, $options: 'i' } },
       ];
     }
 

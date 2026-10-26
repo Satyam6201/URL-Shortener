@@ -22,10 +22,24 @@ export const RESERVED_SLUGS = new Set([
   '404',
   '500',
   'expired',
+  'not-found',
+  'disabled',
+  'scheduled',
+  'limit-reached',
+  'protected',
+  'preview',
+  'tools',
+  'live',
+  'developer',
   'favicon.ico',
   'robots.txt',
   'sitemap.xml',
 ]);
+
+export function escapeRegex(string) {
+  if (typeof string !== 'string') return '';
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
 
 export function isPrivateIPv4(ip) {
   const parts = ip.split('.').map(Number);

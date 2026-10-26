@@ -27,6 +27,7 @@ const BRAND_PATTERNS = [
 ];
 
 async function callGemini(prompt) {
+  if (process.env.NODE_ENV === 'test') return null;
   if (!config.geminiApiKey) return null;
 
   const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${config.geminiApiKey}`;
@@ -193,25 +194,47 @@ export async function scanUrlSafety(urlString) {
 
 export async function extractPageMetadata(urlString) {
   try {
-    const security = await validateUrlSecurity(urlString);
-    if (!security.isValid) {
-      return { title: '', description: '', domain: '' };
+    let currentUrl = urlString;
+    let redirects = 0;
+    const maxRedirects = 3;
+    let response = null;
+
+    while (redirects <= maxRedirects) {
+      const security = await validateUrlSecurity(currentUrl);
+      if (!security.isValid) {
+        logger.warn(`Blocked potentially unsafe or SSRF target in metadata extraction: ${currentUrl}`);
+        return { title: '', description: '', domain: '' };
+      }
+
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 2000);
+
+      try {
+        response = await fetch(currentUrl, {
+          signal: controller.signal,
+          redirect: 'manual',
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 URLShortenerBot/1.0',
+            'Accept': 'text/html,application/xhtml+xml',
+          },
+        });
+      } finally {
+        clearTimeout(timeout);
+      }
+
+      if ([301, 302, 303, 307, 308].includes(response.status)) {
+        const location = response.headers.get('location');
+        if (!location) break;
+        currentUrl = new URL(location, currentUrl).href;
+        redirects++;
+        continue;
+      }
+
+      break;
     }
 
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 1500);
-
-    const response = await fetch(urlString, {
-      signal: controller.signal,
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 URLShortenerBot/1.0',
-        'Accept': 'text/html,application/xhtml+xml',
-      },
-    });
-    clearTimeout(timeout);
-
-    if (!response.ok) {
-      const u = new URL(urlString);
+    if (!response || !response.ok) {
+      const u = new URL(currentUrl);
       return { title: u.pathname.replace(/[^a-zA-Z0-9]/g, ' ').trim(), description: '', domain: u.hostname };
     }
 
@@ -229,7 +252,7 @@ export async function extractPageMetadata(urlString) {
       $('meta[name="description"]').attr('content') ||
       '';
 
-    const u = new URL(urlString);
+    const u = new URL(currentUrl);
     return { title: title.slice(0, 200), description: description.slice(0, 300), domain: u.hostname };
   } catch (err) {
     try {

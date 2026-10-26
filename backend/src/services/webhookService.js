@@ -1,5 +1,6 @@
 import crypto from 'node:crypto';
 import { Webhook } from '../models/Webhook.js';
+import { validateUrlSecurity } from '../utils/ssrfValidator.js';
 import { logger } from '../utils/logger.js';
 
 export async function triggerWebhooks(eventType, payload, userId) {
@@ -21,6 +22,13 @@ export async function triggerWebhooks(eventType, payload, userId) {
     });
 
     const requests = webhooks.map(async (wh) => {
+      // Validate destination URL security against SSRF
+      const security = await validateUrlSecurity(wh.url);
+      if (!security.isValid) {
+        logger.warn(`Skipping webhook dispatch to forbidden SSRF address: ${wh.url}`);
+        return;
+      }
+
       const signature = crypto
         .createHmac('sha256', wh.secret)
         .update(bodyString)
@@ -32,6 +40,7 @@ export async function triggerWebhooks(eventType, payload, userId) {
 
         const res = await fetch(wh.url, {
           method: 'POST',
+          redirect: 'manual', // Prevent SSRF via HTTP redirects
           headers: {
             'Content-Type': 'application/json',
             'X-SnipURL-Event': eventType,
@@ -43,14 +52,16 @@ export async function triggerWebhooks(eventType, payload, userId) {
         });
 
         clearTimeout(timeout);
-        wh.lastTriggeredAt = new Date();
-        wh.lastStatus = res.status;
-        await wh.save();
+        Webhook.updateOne(
+          { _id: wh._id },
+          { $set: { lastTriggeredAt: new Date(), lastStatus: res.status } }
+        ).catch(() => {});
       } catch (err) {
         logger.warn(`Webhook dispatch failed for ${wh.url}: ${err.message}`);
-        wh.lastTriggeredAt = new Date();
-        wh.lastStatus = 500;
-        await wh.save();
+        Webhook.updateOne(
+          { _id: wh._id },
+          { $set: { lastTriggeredAt: new Date(), lastStatus: 500 } }
+        ).catch(() => {});
       }
     });
 

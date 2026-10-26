@@ -1,5 +1,6 @@
 import crypto from 'node:crypto';
 import { Webhook } from '../models/Webhook.js';
+import { validateUrlSecurity } from '../utils/ssrfValidator.js';
 
 export async function listWebhooks(req, res, next) {
   try {
@@ -18,6 +19,11 @@ export async function createWebhook(req, res, next) {
     const { url, events } = req.body;
     if (!url || !url.startsWith('http')) {
       return res.status(400).json({ success: false, error: 'A valid HTTP/HTTPS webhook URL is required' });
+    }
+
+    const security = await validateUrlSecurity(url);
+    if (!security.isValid) {
+      return res.status(400).json({ success: false, error: `Invalid webhook destination: ${security.reason}` });
     }
 
     const secret = `whsec_${crypto.randomBytes(24).toString('hex')}`;
@@ -54,6 +60,11 @@ export async function testWebhook(req, res, next) {
       return res.status(404).json({ success: false, error: 'Webhook not found' });
     }
 
+    const security = await validateUrlSecurity(webhook.url);
+    if (!security.isValid) {
+      return res.status(400).json({ success: false, error: `Target URL is unsafe: ${security.reason}` });
+    }
+
     const testPayload = JSON.stringify({
       event: 'test.ping',
       timestamp: new Date().toISOString(),
@@ -67,6 +78,7 @@ export async function testWebhook(req, res, next) {
 
     const pingRes = await fetch(webhook.url, {
       method: 'POST',
+      redirect: 'manual',
       headers: {
         'Content-Type': 'application/json',
         'X-SnipURL-Event': 'test.ping',
