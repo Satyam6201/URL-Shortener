@@ -105,7 +105,7 @@ export function HomeFeatures({ onSelectTab, onOpenAuth, user }) {
           {metrics.map((m, idx) => (
             <div
               key={idx}
-              className="p-5 sm:p-6 rounded-3xl bg-white/80 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800/80 backdrop-blur-xl shadow-sm hover:shadow-xl hover:shadow-teal-500/10 hover:border-teal-500/50 hover:-translate-y-1.5 transition-all duration-300 group cursor-default"
+              className="p-5 sm:p-6 rounded-3xl bg-white/85 dark:bg-slate-900/60 border border-slate-200/90 dark:border-slate-800/80 backdrop-blur-xl shadow-sm hover:shadow-xl hover:shadow-teal-500/15 hover:border-teal-500/50 hover:-translate-y-1.5 transition-all duration-300 group cursor-default relative overflow-hidden"
             >
               <div className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 dark:text-white font-mono group-hover:text-teal-600 dark:group-hover:text-teal-400 group-hover:scale-105 transition-all duration-200 origin-left">
                 {m.value}
@@ -116,6 +116,7 @@ export function HomeFeatures({ onSelectTab, onOpenAuth, user }) {
               <div className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                 {m.detail}
               </div>
+              <div className="absolute top-0 right-0 w-24 h-24 bg-teal-500/5 rounded-full blur-2xl group-hover:bg-teal-500/10 transition-colors pointer-events-none" />
             </div>
           ))}
         </div>
@@ -140,7 +141,7 @@ export function HomeFeatures({ onSelectTab, onOpenAuth, user }) {
             return (
               <div
                 key={idx}
-                className="p-6 sm:p-7 rounded-3xl bg-white/90 dark:bg-slate-900/70 border border-slate-200/90 dark:border-slate-800/80 shadow-md shadow-slate-900/5 dark:shadow-none hover:shadow-2xl hover:shadow-teal-500/10 hover:border-teal-500/50 hover:-translate-y-2 transition-all duration-300 flex flex-col justify-between group cursor-default"
+                className="p-6 sm:p-7 rounded-3xl bg-white/90 dark:bg-slate-900/75 border border-slate-200/90 dark:border-slate-800/80 shadow-md shadow-slate-900/5 dark:shadow-none hover:shadow-2xl hover:shadow-teal-500/15 hover:border-teal-500/60 hover:-translate-y-2 transition-all duration-300 flex flex-col justify-between group cursor-default relative overflow-hidden"
               >
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
