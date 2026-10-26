@@ -54,11 +54,12 @@ export async function handleRedirect(req, res, next) {
     }
 
     const result = await resolveShortUrl(shortCode, clientDetails);
+    const wantsHtml = req.accepts(['html', 'json']) === 'html';
 
     if (result.status === 'not_found') {
       redirectsTotal.inc({ status: 'not_found', source: 'none' });
-      if (req.accepts('html')) {
-        return res.status(404).redirect(`${config.clientUrl}/not-found?code=${encodeURIComponent(shortCode)}`);
+      if (wantsHtml) {
+        return res.redirect(`${config.clientUrl}/not-found?code=${encodeURIComponent(shortCode)}`);
       }
       return res.status(404).json({ success: false, error: 'Short link not found or does not exist.' });
     }
@@ -66,22 +67,22 @@ export async function handleRedirect(req, res, next) {
     if (result.status === 'expired') {
       redirectsTotal.inc({ status: 'expired', source: result.source || 'db' });
       triggerWebhooks('link.expired', { shortCode }, result.userId).catch(() => {});
-      if (req.accepts('html')) {
-        return res.status(410).redirect(`${config.clientUrl}/expired?code=${encodeURIComponent(shortCode)}`);
+      if (wantsHtml) {
+        return res.redirect(`${config.clientUrl}/expired?code=${encodeURIComponent(shortCode)}`);
       }
       return res.status(410).json({ success: false, error: 'This short link has expired.' });
     }
 
     if (result.status === 'disabled') {
       redirectsTotal.inc({ status: 'disabled', source: result.source || 'db' });
-      if (req.accepts('html')) {
-        return res.status(403).redirect(`${config.clientUrl}/disabled?code=${encodeURIComponent(shortCode)}`);
+      if (wantsHtml) {
+        return res.redirect(`${config.clientUrl}/disabled?code=${encodeURIComponent(shortCode)}`);
       }
       return res.status(403).json({ success: false, error: 'This short link is currently disabled.' });
     }
 
     if (result.status === 'scheduled') {
-      if (req.accepts('html')) {
+      if (wantsHtml) {
         return res.redirect(`${config.clientUrl}/scheduled?code=${encodeURIComponent(shortCode)}&time=${encodeURIComponent(result.activateAt)}`);
       }
       return res.status(403).json({ success: false, error: 'This link has not yet activated.' });
@@ -89,14 +90,14 @@ export async function handleRedirect(req, res, next) {
 
     if (result.status === 'limit_reached') {
       triggerWebhooks('link.limit_reached', { shortCode }, result.userId).catch(() => {});
-      if (req.accepts('html')) {
+      if (wantsHtml) {
         return res.redirect(`${config.clientUrl}/limit-reached?code=${encodeURIComponent(shortCode)}`);
       }
       return res.status(410).json({ success: false, error: 'This short link has reached its click limit.' });
     }
 
     if (result.status === 'password_required') {
-      if (req.accepts('html')) {
+      if (wantsHtml) {
         return res.redirect(`${config.clientUrl}/protected?code=${encodeURIComponent(shortCode)}`);
       }
       return res.status(401).json({ success: false, error: 'Password required to access link.', isProtected: true });
