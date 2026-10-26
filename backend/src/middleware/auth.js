@@ -1,15 +1,25 @@
+import crypto from 'node:crypto';
 import jwt from 'jsonwebtoken';
 import { config } from '../config/env.js';
 import { User } from '../models/User.js';
+
+function hashApiKey(rawKey) {
+  return crypto.createHash('sha256').update(rawKey).digest('hex');
+}
 
 export async function requireAuth(req, res, next) {
   try {
     const apiKey = req.headers['x-api-key'];
     if (apiKey) {
-      const userWithKey = await User.findOne({ 'apiKeys.key': apiKey, isActive: true });
+      const keyHash = hashApiKey(apiKey);
+      const userWithKey = await User.findOne({
+        $or: [{ 'apiKeys.keyHash': keyHash }, { 'apiKeys.key': apiKey }],
+        isActive: true,
+      });
+
       if (userWithKey) {
         User.updateOne(
-          { _id: userWithKey._id, 'apiKeys.key': apiKey },
+          { _id: userWithKey._id, $or: [{ 'apiKeys.keyHash': keyHash }, { 'apiKeys.key': apiKey }] },
           { $set: { 'apiKeys.$.lastUsedAt': new Date() } }
         ).catch(() => {});
         req.user = userWithKey;
@@ -24,10 +34,17 @@ export async function requireAuth(req, res, next) {
       token = req.headers.authorization.split(' ')[1];
     } else if (req.cookies && req.cookies.token) {
       token = req.cookies.token;
+    } else if (req.query && req.query.token) {
+      token = req.query.token;
     }
 
     if (token && token.startsWith('snip_live_')) {
-      const userWithKey = await User.findOne({ 'apiKeys.key': token, isActive: true });
+      const keyHash = hashApiKey(token);
+      const userWithKey = await User.findOne({
+        $or: [{ 'apiKeys.keyHash': keyHash }, { 'apiKeys.key': token }],
+        isActive: true,
+      });
+
       if (userWithKey) {
         req.user = userWithKey;
         req.authType = 'api_key';
@@ -67,7 +84,12 @@ export async function optionalAuth(req, res, next) {
   try {
     const apiKey = req.headers['x-api-key'];
     if (apiKey) {
-      const userWithKey = await User.findOne({ 'apiKeys.key': apiKey, isActive: true });
+      const keyHash = hashApiKey(apiKey);
+      const userWithKey = await User.findOne({
+        $or: [{ 'apiKeys.keyHash': keyHash }, { 'apiKeys.key': apiKey }],
+        isActive: true,
+      });
+
       if (userWithKey) {
         req.user = userWithKey;
         return next();
@@ -79,11 +101,18 @@ export async function optionalAuth(req, res, next) {
       token = req.headers.authorization.split(' ')[1];
     } else if (req.cookies && req.cookies.token) {
       token = req.cookies.token;
+    } else if (req.query && req.query.token) {
+      token = req.query.token;
     }
 
     if (token) {
       if (token.startsWith('snip_live_')) {
-        const userWithKey = await User.findOne({ 'apiKeys.key': token, isActive: true });
+        const keyHash = hashApiKey(token);
+        const userWithKey = await User.findOne({
+          $or: [{ 'apiKeys.keyHash': keyHash }, { 'apiKeys.key': token }],
+          isActive: true,
+        });
+
         if (userWithKey) {
           req.user = userWithKey;
           return next();

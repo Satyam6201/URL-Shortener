@@ -3,7 +3,9 @@ import bcrypt from 'bcryptjs';
 
 const apiKeySchema = new mongoose.Schema(
   {
-    key: { type: String, required: true },
+    key: { type: String, default: null },
+    keyHash: { type: String, default: null },
+    keyPreview: { type: String, default: null },
     name: { type: String, default: 'Default API Key' },
     createdAt: { type: Date, default: Date.now },
     lastUsedAt: { type: Date, default: null },
@@ -71,7 +73,8 @@ const userSchema = new mongoose.Schema(
   }
 );
 
-userSchema.index({ 'apiKeys.key': 1 }, { unique: true, sparse: true });
+userSchema.index({ 'apiKeys.keyHash': 1 }, { unique: true, sparse: true });
+userSchema.index({ 'apiKeys.key': 1 }, { sparse: true });
 
 userSchema.methods.comparePassword = async function (candidatePassword) {
   return bcrypt.compare(candidatePassword, this.passwordHash);
