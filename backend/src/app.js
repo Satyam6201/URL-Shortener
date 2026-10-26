@@ -56,7 +56,11 @@ app.use((req, res, next) => {
     cookieHeader.split(';').forEach((cookie) => {
       const [name, ...rest] = cookie.split('=');
       if (name && rest.length > 0) {
-        req.cookies[name.trim()] = decodeURIComponent(rest.join('=').trim());
+        try {
+          req.cookies[name.trim()] = decodeURIComponent(rest.join('=').trim());
+        } catch {
+          req.cookies[name.trim()] = rest.join('=').trim();
+        }
       }
     });
   }

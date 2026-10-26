@@ -8,37 +8,6 @@ import { logger } from '../utils/logger.js';
 
 let worker = null;
 
-const BATCH_SIZE = 25;
-const FLUSH_INTERVAL_MS = 2000;
-let pendingBatch = [];
-let flushTimeout = null;
-
-async function flushBatch() {
-  if (pendingBatch.length === 0) return;
-
-  const currentBatch = pendingBatch.splice(0, pendingBatch.length);
-  try {
-
-    await Click.insertMany(currentBatch, { ordered: false });
-
-    const countsByUrl = {};
-    for (const item of currentBatch) {
-      if (item.urlId) {
-        countsByUrl[item.urlId] = (countsByUrl[item.urlId] || 0) + 1;
-      }
-    }
-
-    const updatePromises = Object.entries(countsByUrl).map(([urlId, count]) =>
-      Url.findByIdAndUpdate(urlId, { $inc: { clicksCount: count } })
-    );
-
-    await Promise.all(updatePromises);
-    logger.info(`Worker successfully processed and flushed ${currentBatch.length} clicks`);
-  } catch (err) {
-    logger.error(`Error flushing batch clicks in worker: ${err.message}`);
-  }
-}
-
 export function startWorker() {
   if (worker) return worker;
 
@@ -47,19 +16,13 @@ export function startWorker() {
     QUEUE_NAME,
     async (job) => {
       const clickData = job.data;
-      pendingBatch.push(clickData);
+      if (!clickData || !clickData.urlId) return { status: 'skipped' };
 
-      if (pendingBatch.length >= BATCH_SIZE) {
-        if (flushTimeout) clearTimeout(flushTimeout);
-        await flushBatch();
-      } else if (!flushTimeout) {
-        flushTimeout = setTimeout(() => {
-          flushTimeout = null;
-          flushBatch().catch(() => {});
-        }, FLUSH_INTERVAL_MS);
-      }
+      // Persist directly with atomic transactional integrity; BullMQ marks completed only on DB success
+      await Click.create(clickData);
+      await Url.findByIdAndUpdate(clickData.urlId, { $inc: { clicksCount: 1 } });
 
-      return { status: 'batched' };
+      return { status: 'processed', urlId: clickData.urlId };
     },
     {
       connection: {
@@ -68,12 +31,12 @@ export function startWorker() {
         password: url.password || undefined,
         username: url.username || undefined,
       },
-      concurrency: 10,
+      concurrency: 25,
     }
   );
 
   worker.on('completed', (job) => {
-    logger.debug(`Job ${job.id} completed`);
+    logger.debug(`Job ${job.id} completed successfully`);
   });
 
   worker.on('failed', (job, err) => {
@@ -89,12 +52,6 @@ export function startWorker() {
 }
 
 export async function stopWorker() {
-  if (flushTimeout) {
-    clearTimeout(flushTimeout);
-    flushTimeout = null;
-  }
-  await flushBatch();
-
   if (worker) {
     await worker.close();
     worker = null;

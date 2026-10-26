@@ -10,6 +10,11 @@ let server = null;
 
 async function bootstrap() {
   try {
+    if (config.env === 'production' && (!process.env.JWT_SECRET || process.env.JWT_SECRET === 'url-shortener-super-secret-jwt-key-2026')) {
+      logger.fatal('FATAL SECURITY ERROR: In production, a secure unique JWT_SECRET must be explicitly provided.');
+      process.exit(1);
+    }
+
     logger.info('Initializing URL Shortener services...');
 
     await connectDB();
@@ -40,8 +45,12 @@ async function gracefulShutdown(signal) {
   logger.info(`Received ${signal}. Commencing graceful server shutdown...`);
 
   if (server) {
-    server.close(() => {
-      logger.info('HTTP server closed');
+    await new Promise((resolve) => {
+      server.close((err) => {
+        if (err) logger.warn(`Error closing HTTP server: ${err.message}`);
+        else logger.info('HTTP server closed cleanly');
+        resolve();
+      });
     });
   }
 
