@@ -207,6 +207,45 @@ export async function exportCsv(req, res, next) {
   }
 }
 
+export async function exportOverviewCsv(req, res, next) {
+  try {
+    const userId = req.user._id;
+    const userUrls = await Url.find({ userId }).select('_id shortCode');
+    const urlIds = userUrls.map((u) => u._id);
+    const shortCodes = userUrls.map((u) => u.shortCode);
+
+    const clicks = await Click.find({
+      $or: [{ urlId: { $in: urlIds } }, { shortCode: { $in: shortCodes } }],
+    })
+      .sort({ timestamp: -1 })
+      .limit(5000);
+
+    const csvRows = ['Timestamp,ShortCode,Country,City,Device,Browser,OS,Referrer,IsBot,IPHash'];
+    for (const c of clicks) {
+      const row = [
+        c.timestamp ? c.timestamp.toISOString() : '',
+        `"${(c.shortCode || '').replace(/"/g, '""')}"`,
+        `"${(c.country || '').replace(/"/g, '""')}"`,
+        `"${(c.city || '').replace(/"/g, '""')}"`,
+        c.device || '',
+        `"${(c.browser || '').replace(/"/g, '""')}"`,
+        `"${(c.os || '').replace(/"/g, '""')}"`,
+        `"${(c.referrer || '').replace(/"/g, '""')}"`,
+        c.isBot ? 'true' : 'false',
+        c.ipHash || '',
+      ];
+      csvRows.push(row.join(','));
+    }
+
+    const csvContent = csvRows.join('\n');
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', 'attachment; filename="analytics-overview.csv"');
+    res.send(csvContent);
+  } catch (err) {
+    next(err);
+  }
+}
+
 export function streamRealtimeClicks(req, res) {
   if (!req.user) {
     return res.status(401).json({
