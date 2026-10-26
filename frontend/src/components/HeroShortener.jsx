@@ -210,13 +210,13 @@ export function HeroShortener({ onLinkCreated, onOpenAnalytics, onOpenQr }) {
         </p>
       </div>
 
-      <div className="relative rounded-3xl bg-white/95 dark:bg-slate-900/90 border border-slate-200/90 dark:border-slate-800/80 ring-1 ring-slate-900/5 dark:ring-white/5 p-5 sm:p-8 shadow-2xl shadow-teal-500/5 hover:shadow-teal-500/10 hover:border-teal-500/40 backdrop-blur-2xl transition-all duration-300">
+      <div className="relative rounded-3xl bg-white/95 dark:bg-slate-900/90 border border-slate-200/90 dark:border-slate-800/80 ring-1 ring-slate-900/5 dark:ring-white/5 p-5 sm:p-8 shadow-2xl shadow-teal-500/5 hover:shadow-teal-500/15 hover:border-teal-500/40 backdrop-blur-2xl transition-all duration-300">
         <form onSubmit={handleSubmit} className="space-y-5">
           
           <div className="relative flex flex-col sm:flex-row items-stretch gap-3">
             <div className="relative flex-1 group">
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 dark:text-slate-500 group-focus-within:text-teal-500 group-focus-within:scale-110 transition-all duration-200">
-                <Link2 className="w-5 h-5" />
+                <Link2 className="w-5 h-5 stroke-[2.5]" />
               </div>
               <input
                 type="url"
@@ -227,22 +227,29 @@ export function HeroShortener({ onLinkCreated, onOpenAnalytics, onOpenQr }) {
                   setOriginalUrl(e.target.value);
                   setError('');
                 }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !loading && originalUrl) {
+                    handleSubmit(e);
+                  }
+                }}
                 onBlur={() => runSafetyScan(originalUrl)}
-                className="w-full pl-11 pr-24 py-4 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-4 focus:ring-teal-500/20 focus:border-teal-500 hover:border-slate-300 dark:hover:border-slate-700 text-sm sm:text-base transition-all shadow-inner"
+                className="w-full pl-12 pr-28 py-4 sm:py-4.5 rounded-2xl bg-slate-50/90 dark:bg-slate-950/90 border border-slate-200/90 dark:border-slate-800 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-4 focus:ring-teal-500/20 focus:border-teal-500 hover:border-slate-300 dark:hover:border-slate-700 text-sm sm:text-base transition-all shadow-inner font-medium"
               />
               <button
                 type="button"
                 onClick={handlePaste}
-                className="absolute right-3 top-1/2 -translate-y-1/2 px-3 py-1.5 text-xs font-bold rounded-xl bg-slate-200/80 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:scale-105 active:scale-95 shadow-sm transition-all cursor-pointer"
+                className="absolute right-3 top-1/2 -translate-y-1/2 px-3 py-1.5 text-xs font-bold rounded-xl bg-slate-200/80 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:scale-105 active:scale-95 shadow-sm transition-all cursor-pointer flex items-center space-x-1"
+                title="Paste from clipboard"
               >
-                Paste
+                <span>Paste</span>
+                <kbd className="hidden sm:inline-block px-1 py-0.2 text-[9px] bg-slate-300/80 dark:bg-slate-900 rounded font-mono text-slate-500 dark:text-slate-400">⌘V</kbd>
               </button>
             </div>
 
             <button
               type="submit"
               disabled={loading || !originalUrl}
-              className="group/btn px-8 py-4 rounded-2xl bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 text-slate-950 font-black text-sm sm:text-base flex items-center justify-center space-x-2 shadow-lg shadow-teal-500/25 hover:shadow-xl hover:shadow-teal-500/35 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all duration-200 disabled:opacity-50 disabled:pointer-events-none cursor-pointer"
+              className="group/btn px-8 py-4 rounded-2xl bg-gradient-to-r from-teal-500 via-teal-400 to-emerald-400 hover:from-teal-400 hover:to-emerald-300 text-slate-950 font-black text-sm sm:text-base flex items-center justify-center space-x-2 shadow-lg shadow-teal-500/25 hover:shadow-xl hover:shadow-teal-500/35 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all duration-200 disabled:opacity-50 disabled:pointer-events-none cursor-pointer"
             >
               {loading ? (
                 <>
@@ -277,7 +284,11 @@ export function HeroShortener({ onLinkCreated, onOpenAnalytics, onOpenQr }) {
               <button
                 type="button"
                 onClick={() => setShowAdvanced(!showAdvanced)}
-                className="inline-flex items-center space-x-1.5 px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-transparent hover:border-slate-300 dark:hover:border-slate-700 text-slate-700 dark:text-slate-300 font-semibold transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer shadow-sm"
+                className={`inline-flex items-center space-x-1.5 px-3.5 py-2 rounded-xl border font-semibold transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer shadow-sm ${
+                  showAdvanced 
+                    ? 'bg-teal-50 dark:bg-teal-500/10 text-teal-700 dark:text-teal-300 border-teal-300 dark:border-teal-500/40' 
+                    : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-transparent hover:border-slate-300 dark:hover:border-slate-700'
+                }`}
               >
                 <span>Targeting & Controls</span>
                 {showAdvanced ? (
@@ -636,39 +647,62 @@ export function HeroShortener({ onLinkCreated, onOpenAnalytics, onOpenQr }) {
 
         {createdResult && (
           <div className="mt-8 pt-6 border-t border-slate-200 dark:border-slate-800 animate-in fade-in zoom-in-95 duration-200">
-            <div className="p-6 sm:p-7 rounded-3xl bg-gradient-to-br from-teal-500/10 via-white to-emerald-500/5 dark:from-teal-950/30 dark:via-slate-950/90 dark:to-slate-900 border-2 border-teal-500/40 ring-4 ring-teal-500/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 shadow-2xl shadow-teal-500/10 hover:border-teal-500/60 transition-all duration-300">
-              <div className="space-y-2 w-full sm:w-auto">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="px-2.5 py-1 rounded-full text-[11px] font-extrabold uppercase tracking-wider bg-emerald-500/15 border border-emerald-500/30 text-emerald-700 dark:text-emerald-400 flex items-center space-x-1.5 shadow-sm">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 animate-pulse" />
-                    <span>Your Short Link Ready</span>
-                  </span>
-                  {createdResult.category && (
-                    <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-200/80 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300/60 dark:border-slate-700">
-                      {createdResult.category}
-                    </span>
-                  )}
-                  {createdResult.isOneTime && (
-                    <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-rose-50 dark:bg-rose-500/10 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-500/20 animate-pulse">
-                      Burn on Click
-                    </span>
-                  )}
-                </div>
+            <div className="p-6 sm:p-7 rounded-3xl bg-gradient-to-br from-teal-500/10 via-white to-emerald-500/5 dark:from-teal-950/40 dark:via-slate-900/90 dark:to-slate-950 border-2 border-teal-500/40 ring-4 ring-teal-500/10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-2xl shadow-teal-500/15 hover:border-teal-500/60 transition-all duration-300">
+              
+              <div className="flex items-start space-x-4 w-full md:w-auto">
+                {createdResult.qrCodeData && (
+                  <div 
+                    onClick={() => onOpenQr(createdResult)}
+                    className="relative hidden sm:flex flex-col items-center justify-center p-2 rounded-2xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 shadow-sm cursor-pointer group/qr hover:scale-105 hover:border-teal-400 transition-all duration-200 flex-shrink-0"
+                    title="Click to enlarge QR code"
+                  >
+                    <img 
+                      src={createdResult.qrCodeData} 
+                      alt="Short URL QR Code" 
+                      className="w-16 h-16 rounded-lg object-contain"
+                    />
+                    <span className="text-[9px] font-bold text-slate-500 dark:text-slate-400 mt-1 group-hover/qr:text-teal-500 transition-colors">Scan QR</span>
+                  </div>
+                )}
 
-                <div 
-                  onClick={() => handleCopy(createdResult.shortUrl)}
-                  className="group/link text-xl sm:text-2xl font-mono font-black text-slate-900 dark:text-white tracking-tight flex items-center space-x-2 break-all cursor-pointer"
-                  title="Click to copy link"
-                >
-                  <span className="text-teal-600 dark:text-teal-400 group-hover/link:underline underline-offset-4 decoration-teal-400/50 transition-all">{createdResult.shortUrl}</span>
-                </div>
+                <div className="space-y-2 flex-1 min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="px-2.5 py-1 rounded-full text-[11px] font-extrabold uppercase tracking-wider bg-emerald-500/15 border border-emerald-500/30 text-emerald-700 dark:text-emerald-400 flex items-center space-x-1.5 shadow-sm">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 animate-pulse" />
+                      <span>Ready to Share</span>
+                    </span>
+                    {createdResult.category && (
+                      <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-200/80 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300/60 dark:border-slate-700">
+                        {createdResult.category}
+                      </span>
+                    )}
+                    {createdResult.isOneTime && (
+                      <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-rose-50 dark:bg-rose-500/10 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-500/20 animate-pulse">
+                        Burn on Click
+                      </span>
+                    )}
+                    {createdResult.password && (
+                      <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-500/20">
+                        Passcode Protected
+                      </span>
+                    )}
+                  </div>
 
-                <p className="text-xs text-slate-500 dark:text-slate-400 truncate max-w-md">
-                  Original: <span className="hover:text-slate-700 dark:hover:text-slate-300 transition-colors">{createdResult.originalUrl}</span>
-                </p>
+                  <div 
+                    onClick={() => handleCopy(createdResult.shortUrl)}
+                    className="group/link text-xl sm:text-2xl font-mono font-black text-slate-900 dark:text-white tracking-tight flex items-center space-x-2 break-all cursor-pointer"
+                    title="Click to copy link"
+                  >
+                    <span className="text-teal-600 dark:text-teal-400 group-hover/link:underline underline-offset-4 decoration-teal-400/50 transition-all">{createdResult.shortUrl}</span>
+                  </div>
+
+                  <p className="text-xs text-slate-500 dark:text-slate-400 truncate max-w-md">
+                    Target: <span className="hover:text-slate-700 dark:hover:text-slate-300 transition-colors font-mono">{createdResult.originalUrl}</span>
+                  </p>
+                </div>
               </div>
 
-              <div className="flex flex-wrap items-center gap-2.5 w-full sm:w-auto justify-end">
+              <div className="flex flex-wrap items-center gap-2 w-full md:w-auto justify-end">
                 <button
                   type="button"
                   onClick={() => handleCopy(createdResult.shortUrl)}
@@ -679,7 +713,7 @@ export function HeroShortener({ onLinkCreated, onOpenAnalytics, onOpenQr }) {
                   }`}
                 >
                   {copied ? <Check className="w-4 h-4 stroke-[3]" /> : <Copy className="w-4 h-4 stroke-[2.5]" />}
-                  <span>{copied ? 'Copied!' : 'Copy Link'}</span>
+                  <span>{copied ? 'Copied Link!' : 'Copy Link'}</span>
                 </button>
 
                 <a
@@ -697,7 +731,7 @@ export function HeroShortener({ onLinkCreated, onOpenAnalytics, onOpenQr }) {
                     type="button"
                     onClick={() => onOpenQr(createdResult)}
                     className="p-3 rounded-2xl bg-white dark:bg-slate-800 hover:bg-teal-50 dark:hover:bg-slate-700/80 border border-slate-200 dark:border-slate-700 hover:border-teal-400 dark:hover:border-teal-500/40 text-slate-700 dark:text-slate-300 hover:text-teal-600 dark:hover:text-teal-400 transition-all duration-200 hover:scale-110 active:scale-95 cursor-pointer shadow-sm"
-                    title="View QR Code"
+                    title="Enlarge QR Code"
                   >
                     <QrCode className="w-4 h-4" />
                   </button>
