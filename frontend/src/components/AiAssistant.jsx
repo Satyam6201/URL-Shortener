@@ -64,21 +64,21 @@ export function AiAssistant() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-6">
-      <div className="text-center space-y-3">
-        <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-600 dark:text-teal-400 text-xs font-semibold">
+    <div className="max-w-4xl mx-auto space-y-6">
+      <div className="text-center space-y-2">
+        <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-600 dark:text-teal-400 text-xs font-bold">
           <Sparkles className="w-3.5 h-3.5 animate-pulse" />
           <span>Intelligent Analytics Assistant • Natural Language Insights</span>
         </div>
-        <h2 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight">
+        <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
           AI Link Intelligence
         </h2>
-        <p className="text-sm text-slate-600 dark:text-slate-400 max-w-xl mx-auto">
+        <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 max-w-xl mx-auto">
           Query your URL metrics, demographic distributions, and link performance conversationally.
         </p>
       </div>
 
-      <div className="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 flex flex-col h-[600px] shadow-xl shadow-slate-200/50 dark:shadow-2xl transition-colors">
+      <div className="rounded-3xl bg-white/90 dark:bg-slate-900/80 border border-slate-200/90 dark:border-slate-800/80 p-6 flex flex-col h-[560px] shadow-xl shadow-slate-200/50 dark:shadow-2xl transition-colors backdrop-blur-xl">
         <div className="flex-1 overflow-y-auto space-y-4 pr-2">
           {messages.map((m, idx) => (
             <div
