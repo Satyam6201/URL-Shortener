@@ -33,7 +33,9 @@ export function DeepAnalytics() {
       .catch(() => {})
       .finally(() => setLoading(false));
 
-    const eventSource = new EventSource('/api/analytics/stream');
+    const token = localStorage.getItem('token');
+    const streamUrl = token ? `/api/analytics/stream?token=${encodeURIComponent(token)}` : '/api/analytics/stream';
+    const eventSource = new EventSource(streamUrl);
 
     eventSource.onopen = () => {
       setConnected(true);
@@ -43,14 +45,17 @@ export function DeepAnalytics() {
       try {
         const payload = JSON.parse(event.data);
         if (payload.type === 'click') {
-          setLiveClicks((prev) => [payload.data, ...prev.slice(0, 49)]);
-          setOverview((prev) => {
-            if (!prev) return prev;
-            return {
-              ...prev,
-              totalClicks: (prev.totalClicks || 0) + 1,
-            };
-          });
+          const clickData = payload.data || payload;
+          if (clickData && clickData.shortCode) {
+            setLiveClicks((prev) => [clickData, ...prev.slice(0, 49)]);
+            setOverview((prev) => {
+              if (!prev) return prev;
+              return {
+                ...prev,
+                totalClicks: (prev.totalClicks || 0) + 1,
+              };
+            });
+          }
         }
       } catch {
       }
@@ -187,13 +192,13 @@ export function DeepAnalytics() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-200 dark:divide-slate-800 font-mono">
-                {liveClicks.map((click, index) => (
+                {liveClicks.filter(Boolean).map((click, index) => (
                   <tr key={index} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
                     <td className="px-4 py-3 text-slate-500 dark:text-slate-400 whitespace-nowrap">
-                      {new Date(click.timestamp).toLocaleTimeString()}
+                      {click.timestamp ? new Date(click.timestamp).toLocaleTimeString() : 'Just now'}
                     </td>
                     <td className="px-4 py-3 font-bold text-teal-600 dark:text-teal-400 whitespace-nowrap">
-                      /{click.shortCode}
+                      /{click.shortCode || 'link'}
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap font-sans">
                       <div className="flex items-center space-x-1.5">

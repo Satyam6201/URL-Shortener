@@ -10,7 +10,7 @@ export function addRealtimeClient(res, userId = null) {
 
   res.write(`data: ${JSON.stringify({ type: 'connected', time: new Date().toISOString() })}\n\n`);
 
-  const client = { res, userId };
+  const client = { res, userId: userId ? userId.toString() : null };
   clients.add(client);
 
   const heartbeat = setInterval(() => {
@@ -29,10 +29,15 @@ export function addRealtimeClient(res, userId = null) {
 }
 
 export function broadcastRealtimeClick(event) {
-  const payload = `data: ${JSON.stringify({ type: 'click', ...event })}\n\n`;
+  if (!event || !event.userId) return; // Do not broadcast clicks with no associated account across all users
+
+  const eventUserId = event.userId.toString();
+  const payload = `data: ${JSON.stringify({ type: 'click', data: event, ...event })}\n\n`;
+
   for (const client of clients) {
     try {
-      if (!client.userId || !event.userId || client.userId.toString() === event.userId.toString()) {
+      // Secure tenant isolation: only dispatch to the authenticated owner of the link
+      if (client.userId && client.userId === eventUserId) {
         client.res.write(payload);
       }
     } catch {

@@ -10,7 +10,7 @@ import { requireAuth, optionalAuth } from '../middleware/auth.js';
 
 const router = express.Router();
 
-router.get('/stream', streamRealtimeClicks);
+router.get('/stream', optionalAuth, streamRealtimeClicks);
 router.post('/ask-ai', optionalAuth, askAiNaturalLanguage);
 router.get('/overview', requireAuth, getDashboardOverview);
 router.get('/:shortCode/export/csv', optionalAuth, exportCsv);

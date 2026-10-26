@@ -208,8 +208,13 @@ export async function exportCsv(req, res, next) {
 }
 
 export function streamRealtimeClicks(req, res) {
-  const userId = req.user ? req.user._id : null;
-  addRealtimeClient(res, userId);
+  if (!req.user) {
+    return res.status(401).json({
+      success: false,
+      error: 'Authentication required. Please provide a valid token or session cookie to subscribe to the live telemetry stream.',
+    });
+  }
+  addRealtimeClient(res, req.user._id);
 }
 
 export async function askAiNaturalLanguage(req, res, next) {
