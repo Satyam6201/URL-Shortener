@@ -20,6 +20,11 @@ const BOT_REGEX = /bot|crawl|spider|slurp|facebookexternalhit|whatsapp|twitterbo
 export async function handleRedirect(req, res, next) {
   const { shortCode } = req.params;
 
+  const SPA_ROUTES = new Set(['live', 'tools', 'bulk', 'utm', 'dashboard', 'developer', 'docs', 'admin', 'shorten']);
+  if (SPA_ROUTES.has(shortCode)) {
+    return res.redirect(`${config.clientUrl}/${shortCode}`);
+  }
+
   try {
     const ip = req.headers['x-forwarded-for']
       ? req.headers['x-forwarded-for'].split(',')[0].trim()
