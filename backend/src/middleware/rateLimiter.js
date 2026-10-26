@@ -1,4 +1,4 @@
-import { checkRateLimit, checkDailyQuota } from '../services/redisService.js';
+import { checkRateLimit, checkDailyQuota, checkDailyQuotaBulk } from '../services/redisService.js';
 import { config } from '../config/env.js';
 import { rateLimitHitsCounter } from './metrics.js';
 
@@ -66,5 +66,45 @@ export async function dailyQuotaLimiter(req, res, next) {
   }
 
   req.dailyQuota = result;
+  next();
+}
+
+export async function bulkQuotaLimiter(req, res, next) {
+  const { urls } = req.body;
+  if (!Array.isArray(urls) || urls.length === 0) {
+    return next();
+  }
+
+  const count = urls.length;
+  const isAuth = !!req.user;
+  const maxQuota = isAuth
+    ? (req.user.dailyQuota || config.dailyQuotaRegistered)
+    : config.dailyQuotaAnonymous;
+
+  const identifier = isAuth
+    ? `user:${req.user._id}`
+    : `anon:${req.ip || req.socket.remoteAddress}`;
+
+  const result = await checkDailyQuotaBulk(identifier, maxQuota, count);
+
+  res.setHeader('X-Daily-Quota-Limit', maxQuota);
+  res.setHeader('X-Daily-Quota-Remaining', result.remaining);
+
+  if (!result.allowed) {
+    res.setHeader('Retry-After', result.resetInSeconds);
+    if (rateLimitHitsCounter) {
+      rateLimitHitsCounter.inc({ type: 'bulk_daily_quota' });
+    }
+
+    return res.status(429).json({
+      success: false,
+      error: 'Daily Quota Exceeded',
+      message: `Creating ${count} links would exceed your remaining daily quota of ${result.remaining} links.`,
+      current: result.current,
+      max: maxQuota,
+      retryAfter: result.resetInSeconds,
+    });
+  }
+
   next();
 }

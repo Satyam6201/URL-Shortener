@@ -62,10 +62,6 @@ export async function verifyDomain(req, res, next) {
       }
     } catch {}
 
-    if (!isVerified) {
-      isVerified = true;
-    }
-
     domainDoc.isVerified = isVerified;
     if (isVerified) {
       domainDoc.verifiedAt = new Date();

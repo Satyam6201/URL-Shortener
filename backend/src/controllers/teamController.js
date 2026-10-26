@@ -42,12 +42,11 @@ export async function inviteMember(req, res, next) {
       return res.status(409).json({ success: false, error: 'User is already a team member' });
     }
 
-    let memberUser = await User.findOne({ email: email.toLowerCase() });
+    let memberUser = await User.findOne({ email: email.toLowerCase().trim() });
     if (!memberUser) {
-      memberUser = await User.create({
-        name: email.split('@')[0],
-        email: email.toLowerCase(),
-        passwordHash: 'pending_invitation_hash',
+      return res.status(404).json({
+        success: false,
+        error: `No account found for "${email}". The user must register an account on the platform first.`,
       });
     }
 

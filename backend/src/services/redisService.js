@@ -173,3 +173,38 @@ export async function checkDailyQuota(identifier, maxQuota) {
     return { allowed: true, current: 0, max: maxQuota, remaining: maxQuota, resetInSeconds: 0 };
   }
 }
+
+export async function checkDailyQuotaBulk(identifier, maxQuota, count = 1) {
+  const today = new Date().toISOString().slice(0, 10);
+  const quotaKey = `quota:${identifier}:${today}`;
+
+  if (!isRedisAvailable()) {
+    return { allowed: true, current: 0, max: maxQuota, remaining: maxQuota, resetInSeconds: 0 };
+  }
+
+  try {
+    const redis = getRedisClient();
+    const current = await redis.incrby(quotaKey, count);
+
+    if (current === count) {
+      await redis.expire(quotaKey, 86400);
+    }
+
+    const ttl = await redis.ttl(quotaKey);
+    const resetInSeconds = ttl > 0 ? ttl : 86400;
+
+    const allowed = current <= maxQuota;
+    const remaining = Math.max(0, maxQuota - current);
+
+    return {
+      allowed,
+      current,
+      max: maxQuota,
+      remaining,
+      resetInSeconds,
+    };
+  } catch (err) {
+    logger.warn(`Redis checkDailyQuotaBulk failed: ${err.message}`);
+    return { allowed: true, current: 0, max: maxQuota, remaining: maxQuota, resetInSeconds: 0 };
+  }
+}

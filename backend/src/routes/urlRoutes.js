@@ -10,14 +10,14 @@ import {
 } from '../controllers/urlController.js';
 import { verifyPassword, getLinkPreview } from '../controllers/redirectController.js';
 import { requireAuth, optionalAuth } from '../middleware/auth.js';
-import { createRateLimiter, dailyQuotaLimiter } from '../middleware/rateLimiter.js';
+import { createRateLimiter, dailyQuotaLimiter, bulkQuotaLimiter } from '../middleware/rateLimiter.js';
 
 const router = express.Router();
 
 const createLimiter = createRateLimiter({ max: 30, windowSeconds: 60, keyPrefix: 'create_url' });
 
 router.post('/', optionalAuth, createLimiter, dailyQuotaLimiter, createUrl);
-router.post('/bulk', requireAuth, createLimiter, bulkCreateUrls);
+router.post('/bulk', requireAuth, createLimiter, bulkQuotaLimiter, bulkCreateUrls);
 router.post('/verify-password', verifyPassword);
 router.get('/preview/:shortCode', getLinkPreview);
 router.get('/quota', optionalAuth, getUserQuota);

@@ -2,7 +2,7 @@ import QRCode from 'qrcode';
 import bcrypt from 'bcryptjs';
 import { Url } from '../models/Url.js';
 import { encodeBase62, isValidSlug } from '../utils/base62.js';
-import { validateUrlSecurity, RESERVED_SLUGS } from '../utils/ssrfValidator.js';
+import { validateUrlSecurity, RESERVED_SLUGS, escapeRegex } from '../utils/ssrfValidator.js';
 import {
   getNextShortId,
   cacheUrl,
@@ -119,41 +119,58 @@ export async function createShortUrl({
     logger.warn(`QR Code generation failed: ${qrErr.message}`);
   }
 
-  const urlDoc = await Url.create({
-    shortCode,
-    originalUrl,
-    userId,
-    customAlias: customAlias ? shortCode : null,
-    title: pageTitle || originalUrl,
-    category: detectedCategory || 'General',
-    tags: finalTags || [],
-    folder: folder || 'Default',
-    isOneTime: !!isOneTime,
-    clickLimit: clickLimit ? parseInt(clickLimit, 10) : null,
-    passwordHash,
-    showPreview: !!showPreview,
-    activateAt: activateAt ? new Date(activateAt) : null,
-    expiresAt: expiresAt ? new Date(expiresAt) : null,
-    deviceTargeting: {
-      iosUrl: deviceTargeting.iosUrl || null,
-      androidUrl: deviceTargeting.androidUrl || null,
-      desktopUrl: deviceTargeting.desktopUrl || null,
-    },
-    geoTargeting: Array.isArray(geoTargeting) ? geoTargeting : [],
-    utm: {
-      source: utm.source || null,
-      medium: utm.medium || null,
-      campaign: utm.campaign || null,
-      term: utm.term || null,
-      content: utm.content || null,
-    },
-    abTest: {
-      isEnabled: !!abTest.isEnabled,
-      variants: Array.isArray(abTest.variants) ? abTest.variants : [],
-    },
-    aiSafety,
-    qrCodeData,
-  });
+  let urlDoc = null;
+  let attempts = 0;
+  const maxAttempts = 3;
+
+  while (attempts < maxAttempts) {
+    try {
+      urlDoc = await Url.create({
+        shortCode,
+        originalUrl,
+        userId,
+        customAlias: customAlias ? shortCode : null,
+        title: pageTitle || originalUrl,
+        category: detectedCategory || 'General',
+        tags: finalTags || [],
+        folder: folder || 'Default',
+        isOneTime: !!isOneTime,
+        clickLimit: clickLimit ? parseInt(clickLimit, 10) : null,
+        passwordHash,
+        showPreview: !!showPreview,
+        activateAt: activateAt ? new Date(activateAt) : null,
+        expiresAt: expiresAt ? new Date(expiresAt) : null,
+        deviceTargeting: {
+          iosUrl: deviceTargeting.iosUrl || null,
+          androidUrl: deviceTargeting.androidUrl || null,
+          desktopUrl: deviceTargeting.desktopUrl || null,
+        },
+        geoTargeting: Array.isArray(geoTargeting) ? geoTargeting : [],
+        utm: {
+          source: utm.source || null,
+          medium: utm.medium || null,
+          campaign: utm.campaign || null,
+          term: utm.term || null,
+          content: utm.content || null,
+        },
+        abTest: {
+          isEnabled: !!abTest.isEnabled,
+          variants: Array.isArray(abTest.variants) ? abTest.variants : [],
+        },
+        aiSafety,
+        qrCodeData,
+      });
+      break;
+    } catch (createErr) {
+      if (createErr.code === 11000 && !customAlias) {
+        attempts++;
+        const nextId = await getNextShortId();
+        shortCode = encodeBase62(nextId);
+        continue;
+      }
+      throw createErr;
+    }
+  }
 
   let ttlSeconds = config.cacheTtlSeconds;
   if (expiresAt) {
@@ -330,6 +347,19 @@ export async function resolveShortUrl(shortCode, clientDetails = {}) {
     await invalidateUrl(shortCode);
   }
 
+  // Forward configured UTM parameters to the destination URL
+  if (urlDoc.utm && (urlDoc.utm.source || urlDoc.utm.medium || urlDoc.utm.campaign || urlDoc.utm.term || urlDoc.utm.content)) {
+    try {
+      const u = new URL(targetUrl);
+      if (urlDoc.utm.source && !u.searchParams.has('utm_source')) u.searchParams.set('utm_source', urlDoc.utm.source);
+      if (urlDoc.utm.medium && !u.searchParams.has('utm_medium')) u.searchParams.set('utm_medium', urlDoc.utm.medium);
+      if (urlDoc.utm.campaign && !u.searchParams.has('utm_campaign')) u.searchParams.set('utm_campaign', urlDoc.utm.campaign);
+      if (urlDoc.utm.term && !u.searchParams.has('utm_term')) u.searchParams.set('utm_term', urlDoc.utm.term);
+      if (urlDoc.utm.content && !u.searchParams.has('utm_content')) u.searchParams.set('utm_content', urlDoc.utm.content);
+      targetUrl = u.toString();
+    } catch {}
+  }
+
   return {
     status: 'active',
     urlId: urlDoc._id,
@@ -343,12 +373,13 @@ export async function resolveShortUrl(shortCode, clientDetails = {}) {
 export async function getUserUrls(userId, { page = 1, limit = 20, search = '', category = '', status = '', folder = '' }) {
   const query = { userId };
 
-  if (search) {
+  if (search && search.trim()) {
+    const escaped = escapeRegex(search.trim());
     query.$or = [
-      { shortCode: { $regex: search, $options: 'i' } },
-      { originalUrl: { $regex: search, $options: 'i' } },
-      { title: { $regex: search, $options: 'i' } },
-      { tags: { $in: [new RegExp(search, 'i')] } },
+      { shortCode: { $regex: escaped, $options: 'i' } },
+      { originalUrl: { $regex: escaped, $options: 'i' } },
+      { title: { $regex: escaped, $options: 'i' } },
+      { tags: { $in: [new RegExp(escaped, 'i')] } },
     ];
   }
 
