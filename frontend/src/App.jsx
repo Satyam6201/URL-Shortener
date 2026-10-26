@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from './context/AuthContext.jsx';
 import { Navbar } from './components/Navbar.jsx';
 import { HeroShortener } from './components/HeroShortener.jsx';
@@ -14,9 +14,42 @@ import { EditLinkModal } from './components/EditLinkModal.jsx';
 import { AuthModal } from './components/AuthModal.jsx';
 import { StatusPage } from './components/StatusPages.jsx';
 
+const TAB_ROUTES = {
+  shorten: '/',
+  dashboard: '/dashboard',
+  live: '/live',
+  tools: '/tools',
+  developer: '/developer',
+  admin: '/admin',
+};
+
+const ROUTE_TABS = {
+  '/': 'shorten',
+  '/shorten': 'shorten',
+  '/dashboard': 'dashboard',
+  '/links': 'dashboard',
+  '/live': 'live',
+  '/stream': 'live',
+  '/tools': 'tools',
+  '/bulk': 'tools',
+  '/utm': 'tools',
+  '/campaigns': 'tools',
+  '/developer': 'developer',
+  '/docs': 'developer',
+  '/api-docs': 'developer',
+  '/admin': 'admin',
+};
+
+function getTabFromPath(pathname) {
+  const cleanPath = (pathname || window.location.pathname).replace(/\/$/, '') || '/';
+  return ROUTE_TABS[cleanPath] || null;
+}
+
 export function App() {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState('shorten');
+  const [activeTab, setActiveTabState] = useState(() => {
+    return getTabFromPath(window.location.pathname) || 'shorten';
+  });
 
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [analyticsCode, setAnalyticsCode] = useState(null);
@@ -25,33 +58,58 @@ export function App() {
 
   const [statusPageInfo, setStatusPageInfo] = useState(null);
 
+  const navigateToTab = useCallback((tabId, pushHistory = true) => {
+    setActiveTabState(tabId);
+    setStatusPageInfo(null);
+    const targetPath = TAB_ROUTES[tabId] || '/';
+    if (pushHistory && window.location.pathname !== targetPath) {
+      window.history.pushState({ tab: tabId }, '', targetPath);
+    }
+  }, []);
+
+  useEffect(() => {
+    const handlePopState = () => {
+      const path = window.location.pathname;
+      const params = new URLSearchParams(window.location.search);
+      const code = params.get('code') || '';
+      const time = params.get('time') || '';
+
+      const statusPages = ['not-found', 'expired', 'disabled', 'scheduled', 'limit-reached', 'protected', 'preview'];
+      const matchedStatus = statusPages.find((s) => path === `/${s}`);
+      if (matchedStatus) {
+        setStatusPageInfo({ type: matchedStatus, code, time });
+        return;
+      }
+
+      setStatusPageInfo(null);
+      const tab = getTabFromPath(path) || 'shorten';
+      setActiveTabState(tab);
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
   useEffect(() => {
     const path = window.location.pathname;
     const params = new URLSearchParams(window.location.search);
     const code = params.get('code') || '';
     const time = params.get('time') || '';
 
-    if (path === '/not-found') {
-      setStatusPageInfo({ type: 'not-found', code });
-    } else if (path === '/expired') {
-      setStatusPageInfo({ type: 'expired', code });
-    } else if (path === '/disabled') {
-      setStatusPageInfo({ type: 'disabled', code });
-    } else if (path === '/scheduled') {
-      setStatusPageInfo({ type: 'scheduled', code, time });
-    } else if (path === '/limit-reached') {
-      setStatusPageInfo({ type: 'limit-reached', code });
-    } else if (path === '/protected') {
-      setStatusPageInfo({ type: 'protected', code });
-    } else if (path === '/preview') {
-      setStatusPageInfo({ type: 'preview', code });
+    const statusPages = ['not-found', 'expired', 'disabled', 'scheduled', 'limit-reached', 'protected', 'preview'];
+    const matchedStatus = statusPages.find((s) => path === `/${s}`);
+    if (matchedStatus) {
+      setStatusPageInfo({ type: matchedStatus, code, time });
+    } else {
+      const tab = getTabFromPath(path);
+      if (tab) {
+        setActiveTabState(tab);
+      }
     }
   }, []);
 
   const handleGoHome = () => {
-    window.history.pushState({}, '', '/');
-    setStatusPageInfo(null);
-    setActiveTab('shorten');
+    navigateToTab('shorten', true);
   };
 
   if (statusPageInfo) {
@@ -61,7 +119,7 @@ export function App() {
           activeTab={activeTab}
           setActiveTab={(tab) => {
             handleGoHome();
-            setActiveTab(tab);
+            navigateToTab(tab);
           }}
           onOpenAuth={() => setAuthModalOpen(true)}
         />
@@ -88,7 +146,7 @@ export function App() {
 
       <Navbar
         activeTab={activeTab}
-        setActiveTab={setActiveTab}
+        setActiveTab={navigateToTab}
         onOpenAuth={() => setAuthModalOpen(true)}
       />
 
@@ -102,7 +160,7 @@ export function App() {
             />
 
             <HomeFeatures
-              onSelectTab={setActiveTab}
+              onSelectTab={navigateToTab}
               onOpenAuth={() => setAuthModalOpen(true)}
               user={user}
             />
@@ -115,7 +173,7 @@ export function App() {
               onOpenAnalytics={(code) => setAnalyticsCode(code)}
               onOpenQr={(link) => setQrLink(link)}
               onOpenEdit={(link) => setEditLink(link)}
-              onSwitchToShorten={() => setActiveTab('shorten')}
+              onSwitchToShorten={() => navigateToTab('shorten')}
             />
           </div>
         )}
@@ -165,7 +223,7 @@ export function App() {
             <div className="flex flex-wrap items-center justify-center gap-6 font-semibold text-slate-600 dark:text-slate-400">
               <button
                 type="button"
-                onClick={() => setActiveTab('shorten')}
+                onClick={() => navigateToTab('shorten')}
                 className="hover:text-teal-600 dark:hover:text-teal-400 transition-colors cursor-pointer"
               >
                 Shortener
@@ -173,7 +231,7 @@ export function App() {
               {user && (
                 <button
                   type="button"
-                  onClick={() => setActiveTab('dashboard')}
+                  onClick={() => navigateToTab('dashboard')}
                   className="hover:text-teal-600 dark:hover:text-teal-400 transition-colors cursor-pointer"
                 >
                   My Links
@@ -181,21 +239,21 @@ export function App() {
               )}
               <button
                 type="button"
-                onClick={() => setActiveTab('live')}
+                onClick={() => navigateToTab('live')}
                 className="hover:text-teal-600 dark:hover:text-teal-400 transition-colors cursor-pointer"
               >
                 Live Stream
               </button>
               <button
                 type="button"
-                onClick={() => setActiveTab('tools')}
+                onClick={() => navigateToTab('tools')}
                 className="hover:text-teal-600 dark:hover:text-teal-400 transition-colors cursor-pointer"
               >
                 Campaign Tools
               </button>
               <button
                 type="button"
-                onClick={() => setActiveTab('developer')}
+                onClick={() => navigateToTab('developer')}
                 className="hover:text-teal-600 dark:hover:text-teal-400 transition-colors cursor-pointer"
               >
                 API & Docs
