@@ -22,7 +22,6 @@ export async function triggerWebhooks(eventType, payload, userId) {
     });
 
     const requests = webhooks.map(async (wh) => {
-      // Validate destination URL security against SSRF
       const security = await validateUrlSecurity(wh.url);
       if (!security.isValid) {
         logger.warn(`Skipping webhook dispatch to forbidden SSRF address: ${wh.url}`);
@@ -40,7 +39,7 @@ export async function triggerWebhooks(eventType, payload, userId) {
 
         const res = await fetch(wh.url, {
           method: 'POST',
-          redirect: 'manual', // Prevent SSRF via HTTP redirects
+          redirect: 'manual',
           headers: {
             'Content-Type': 'application/json',
             'X-SnipURL-Event': eventType,

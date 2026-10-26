@@ -18,7 +18,6 @@ export function startWorker() {
       const clickData = job.data;
       if (!clickData || !clickData.urlId) return { status: 'skipped' };
 
-      // Persist directly with atomic transactional integrity; BullMQ marks completed only on DB success
       await Click.create(clickData);
       await Url.findByIdAndUpdate(clickData.urlId, { $inc: { clicksCount: 1 } });
 

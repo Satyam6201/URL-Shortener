@@ -347,7 +347,6 @@ export async function resolveShortUrl(shortCode, clientDetails = {}) {
     await invalidateUrl(shortCode);
   }
 
-  // Forward configured UTM parameters to the destination URL
   if (urlDoc.utm && (urlDoc.utm.source || urlDoc.utm.medium || urlDoc.utm.campaign || urlDoc.utm.term || urlDoc.utm.content)) {
     try {
       const u = new URL(targetUrl);

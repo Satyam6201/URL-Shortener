@@ -29,14 +29,13 @@ export function addRealtimeClient(res, userId = null) {
 }
 
 export function broadcastRealtimeClick(event) {
-  if (!event || !event.userId) return; // Do not broadcast clicks with no associated account across all users
+  if (!event || !event.userId) return;
 
   const eventUserId = event.userId.toString();
   const payload = `data: ${JSON.stringify({ type: 'click', data: event, ...event })}\n\n`;
 
   for (const client of clients) {
     try {
-      // Secure tenant isolation: only dispatch to the authenticated owner of the link
       if (client.userId && client.userId === eventUserId) {
         client.res.write(payload);
       }
