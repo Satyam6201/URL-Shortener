@@ -80,7 +80,6 @@ export function App() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col selection:bg-teal-500 selection:text-white transition-colors duration-300 relative bg-grid-pattern overflow-x-hidden">
-      {/* Dynamic Ambient Background Glow Orbs */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10">
         <div className="absolute -top-40 left-1/4 w-[500px] h-[500px] bg-gradient-to-tr from-teal-500/15 to-emerald-400/10 dark:from-teal-500/10 dark:to-cyan-500/10 rounded-full blur-[140px] animate-float-slow" />
         <div className="absolute top-1/3 -right-20 w-[420px] h-[420px] bg-gradient-to-br from-cyan-500/10 to-blue-500/10 dark:from-cyan-500/05 dark:to-teal-500/05 rounded-full blur-[130px] animate-float-slow" style={{ animationDelay: '-3.5s' }} />
