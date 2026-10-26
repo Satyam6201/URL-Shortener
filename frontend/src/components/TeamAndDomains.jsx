@@ -126,17 +126,13 @@ export function TeamAndDomains() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+    <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-600 dark:text-teal-400 text-xs font-semibold">
-            <Users2 className="w-3.5 h-3.5" />
-            <span>SaaS Team Workspaces & Branded Custom Domains</span>
-          </div>
-          <h2 className="text-3xl font-black text-slate-900 dark:text-white mt-2 tracking-tight">
+          <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
             Workspaces & Branded Domains
           </h2>
-          <p className="text-sm text-slate-600 dark:text-slate-400">
+          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-0.5">
             Collaborate with team members across RBAC roles and serve short links from your company's custom branded domain.
           </p>
         </div>
