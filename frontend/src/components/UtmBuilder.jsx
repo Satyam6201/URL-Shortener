@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { api } from '../services/api.js';
 import { useAuth } from '../context/AuthContext.jsx';
+import { useToast } from '../context/ToastContext.jsx';
 import {
   Target,
   Copy,
@@ -15,6 +16,7 @@ import {
 
 export function UtmBuilder({ onLinkCreated, onOpenAnalytics }) {
   const { refreshQuota } = useAuth();
+  const toast = useToast();
   const [baseUrl, setBaseUrl] = useState('');
   const [utmSource, setUtmSource] = useState('');
   const [utmMedium, setUtmMedium] = useState('');
@@ -50,6 +52,7 @@ export function UtmBuilder({ onLinkCreated, onOpenAnalytics }) {
     if (!taggedUrl) return;
     navigator.clipboard.writeText(taggedUrl);
     setCopiedTagged(true);
+    toast.success('Tagged UTM link copied to clipboard!');
     setTimeout(() => setCopiedTagged(false), 2000);
   };
 
@@ -57,6 +60,7 @@ export function UtmBuilder({ onLinkCreated, onOpenAnalytics }) {
     if (!shortResult) return;
     navigator.clipboard.writeText(shortResult.shortUrl);
     setCopiedShort(true);
+    toast.success('Shortened link copied to clipboard!');
     setTimeout(() => setCopiedShort(false), 2000);
   };
 
@@ -86,9 +90,11 @@ export function UtmBuilder({ onLinkCreated, onOpenAnalytics }) {
         setShortResult(res.data);
         await refreshQuota();
         if (onLinkCreated) onLinkCreated(res.data);
+        toast.success('UTM Campaign shortlink generated successfully!');
       }
     } catch (err) {
       setError(err.message || 'Failed to shorten tagged link');
+      toast.error(err.message || 'Failed to shorten tagged link');
     } finally {
       setLoading(false);
     }

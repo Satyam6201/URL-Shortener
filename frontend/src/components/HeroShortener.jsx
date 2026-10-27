@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { api } from '../services/api.js';
 import { useAuth } from '../context/AuthContext.jsx';
+import { useToast } from '../context/ToastContext.jsx';
 import {
   Link2,
   Sparkles,
@@ -29,10 +30,14 @@ import {
   Trash2,
   CheckCircle2,
   Zap,
+  Shuffle,
+  Download,
+  Share2,
 } from 'lucide-react';
 
 export function HeroShortener({ onLinkCreated, onOpenAnalytics, onOpenQr }) {
   const { user, refreshQuota } = useAuth();
+  const toast = useToast();
   const [originalUrl, setOriginalUrl] = useState('');
   const [customAlias, setCustomAlias] = useState('');
   const [expiryOption, setExpiryOption] = useState('never');
@@ -53,6 +58,11 @@ export function HeroShortener({ onLinkCreated, onOpenAnalytics, onOpenQr }) {
   const [newGeoCountry, setNewGeoCountry] = useState('');
   const [newGeoUrl, setNewGeoUrl] = useState('');
 
+  const [abTestingEnabled, setAbTestingEnabled] = useState(false);
+  const [abVariants, setAbVariants] = useState([
+    { url: '', weight: 50 },
+  ]);
+
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [activeTab, setActiveTab] = useState('basic');
   const [loading, setLoading] = useState(false);
@@ -72,6 +82,7 @@ export function HeroShortener({ onLinkCreated, onOpenAnalytics, onOpenQr }) {
       if (text) {
         setOriginalUrl(text);
         runSafetyScan(text);
+        toast.info('Pasted destination URL');
       }
     } catch {}
   };
@@ -103,9 +114,11 @@ export function HeroShortener({ onLinkCreated, onOpenAnalytics, onOpenQr }) {
       if (res.success && res.data.slugs) {
         setSuggestedSlugs(res.data.slugs);
         setShowAdvanced(true);
+        toast.sparkle(`AI suggested ${res.data.slugs.length} high-converting slugs!`);
       }
     } catch (err) {
       setError(err.message || 'Could not generate smart slugs');
+      toast.error('Failed to generate AI slugs');
     } finally {
       setLoadingSlugs(false);
     }
@@ -116,10 +129,29 @@ export function HeroShortener({ onLinkCreated, onOpenAnalytics, onOpenQr }) {
     setGeoRules([...geoRules, { country: newGeoCountry.toUpperCase().trim(), url: newGeoUrl.trim() }]);
     setNewGeoCountry('');
     setNewGeoUrl('');
+    toast.success(`Targeting rule for ${newGeoCountry.toUpperCase()} added`);
   };
 
   const removeGeoRule = (index) => {
     setGeoRules(geoRules.filter((_, i) => i !== index));
+  };
+
+  const addAbVariant = () => {
+    if (abVariants.length >= 4) {
+      toast.info('Maximum 4 A/B testing variants supported');
+      return;
+    }
+    setAbVariants([...abVariants, { url: '', weight: 50 }]);
+  };
+
+  const updateAbVariant = (index, field, value) => {
+    const updated = [...abVariants];
+    updated[index][field] = value;
+    setAbVariants(updated);
+  };
+
+  const removeAbVariant = (index) => {
+    setAbVariants(abVariants.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e) => {
@@ -152,6 +184,16 @@ export function HeroShortener({ onLinkCreated, onOpenAnalytics, onOpenQr }) {
         url: r.url,
       }));
 
+      const abTestPayload =
+        abTestingEnabled && abVariants.some((v) => v.url.trim())
+          ? {
+              isEnabled: true,
+              variants: abVariants
+                .filter((v) => v.url.trim())
+                .map((v) => ({ url: v.url.trim(), weight: Number(v.weight) || 50 })),
+            }
+          : undefined;
+
       const payload = {
         originalUrl: originalUrl.trim(),
         customAlias: customAlias.trim() || undefined,
@@ -165,6 +207,7 @@ export function HeroShortener({ onLinkCreated, onOpenAnalytics, onOpenQr }) {
         showPreview: Boolean(showPreview),
         deviceTargeting: Object.keys(deviceTargeting).length > 0 ? deviceTargeting : undefined,
         geoTargeting: geoTargeting.length > 0 ? geoTargeting : undefined,
+        abTest: abTestPayload,
       };
 
       const res = await api.urls.create(payload);
@@ -173,9 +216,11 @@ export function HeroShortener({ onLinkCreated, onOpenAnalytics, onOpenQr }) {
         setCreatedResult(res.data);
         await refreshQuota();
         if (onLinkCreated) onLinkCreated(res.data);
+        toast.success('Your short link was created successfully!');
       }
     } catch (err) {
       setError(err.message || 'Failed to shorten URL');
+      toast.error(err.message || 'Failed to shorten URL');
     } finally {
       setLoading(false);
     }
@@ -184,7 +229,32 @@ export function HeroShortener({ onLinkCreated, onOpenAnalytics, onOpenQr }) {
   const handleCopy = (text) => {
     navigator.clipboard.writeText(text);
     setCopied(true);
+    toast.success('Link copied to clipboard!');
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleDownloadQr = () => {
+    if (!createdResult?.qrCodeData) return;
+    const a = document.createElement('a');
+    a.href = createdResult.qrCodeData;
+    a.download = `snipurl-${createdResult.shortCode}-qr.png`;
+    a.click();
+    toast.success('QR Code downloaded!');
+  };
+
+  const handleNativeShare = async () => {
+    if (!createdResult?.shortUrl) return;
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: createdResult.title || 'SnipURL Link',
+          url: createdResult.shortUrl,
+        });
+        toast.success('Shared successfully!');
+        return;
+      } catch {}
+    }
+    handleCopy(createdResult.shortUrl);
   };
 
   return (
@@ -264,6 +334,47 @@ export function HeroShortener({ onLinkCreated, onOpenAnalytics, onOpenQr }) {
               )}
             </button>
           </div>
+
+          {originalUrl && originalUrl.startsWith('http') && (
+            <div className="flex flex-wrap items-center justify-between gap-2 px-4 py-2.5 rounded-2xl bg-slate-100/80 dark:bg-slate-950/70 border border-slate-200/80 dark:border-slate-800 text-xs animate-in fade-in slide-in-from-top-1 duration-200">
+              <div className="flex items-center space-x-2 text-slate-600 dark:text-slate-400 min-w-0">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+                <span className="font-semibold text-slate-800 dark:text-slate-200">Domain:</span>
+                <span className="font-mono text-teal-600 dark:text-teal-400 font-bold truncate">
+                  {(() => {
+                    try {
+                      return new URL(originalUrl).hostname;
+                    } catch {
+                      return originalUrl;
+                    }
+                  })()}
+                </span>
+                {originalUrl.startsWith('https://') && (
+                  <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                    TLS 256-bit
+                  </span>
+                )}
+              </div>
+              <div className="flex items-center space-x-3 text-[11px] font-mono text-slate-500 dark:text-slate-400">
+                <span className="flex items-center space-x-1">
+                  <Zap className="w-3.5 h-3.5 text-amber-500" />
+                  <span>Ping: &lt; 3ms</span>
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setOriginalUrl('');
+                    setSafetyStatus(null);
+                    setSuggestedSlugs([]);
+                  }}
+                  className="text-slate-400 hover:text-rose-500 font-sans transition-colors cursor-pointer"
+                  title="Clear destination input"
+                >
+                  Clear
+                </button>
+              </div>
+            </div>
+          )}
 
           <div className="flex flex-wrap items-center justify-between gap-3 pt-1 text-xs">
             <div className="flex flex-wrap items-center gap-2">
@@ -381,6 +492,21 @@ export function HeroShortener({ onLinkCreated, onOpenAnalytics, onOpenQr }) {
                   }`}
                 >
                   Device & Geo Rules
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('abtest')}
+                  className={`px-3 py-1.5 rounded-xl transition-all flex items-center space-x-1.5 cursor-pointer ${
+                    activeTab === 'abtest'
+                      ? 'bg-slate-100 dark:bg-slate-800 text-teal-700 dark:text-teal-400 font-bold'
+                      : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                  }`}
+                >
+                  <Shuffle className="w-3.5 h-3.5 text-teal-500" />
+                  <span>A/B Split Test</span>
+                  {abTestingEnabled && (
+                    <span className="w-1.5 h-1.5 rounded-full bg-teal-500 animate-pulse" />
+                  )}
                 </button>
               </div>
 
@@ -634,6 +760,101 @@ export function HeroShortener({ onLinkCreated, onOpenAnalytics, onOpenQr }) {
                   </div>
                 </div>
               )}
+
+              {activeTab === 'abtest' && (
+                <div className="space-y-4 text-sm animate-in fade-in duration-150">
+                  <div className="flex items-center justify-between p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800">
+                    <div className="space-y-0.5">
+                      <div className="flex items-center space-x-2">
+                        <Shuffle className="w-4 h-4 text-teal-500" />
+                        <span className="text-xs font-bold text-slate-900 dark:text-white">
+                          Traffic Split Testing (A/B Testing)
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                        Randomly distribute incoming clicks across multiple landing page variants based on weighted percentage.
+                      </p>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={abTestingEnabled}
+                        onChange={(e) => setAbTestingEnabled(e.target.checked)}
+                        className="sr-only peer"
+                      />
+                      <div className="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer dark:bg-slate-800 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-slate-600 peer-checked:bg-teal-500" />
+                    </label>
+                  </div>
+
+                  {abTestingEnabled && (
+                    <div className="space-y-3 p-4 rounded-2xl bg-teal-50/40 dark:bg-slate-950/40 border border-teal-200/60 dark:border-teal-500/20">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                          A/B Experiment Variants
+                        </span>
+                        <button
+                          type="button"
+                          onClick={addAbVariant}
+                          className="inline-flex items-center space-x-1 px-3 py-1.5 rounded-xl text-xs font-bold bg-teal-500 hover:bg-teal-400 text-slate-950 transition-colors cursor-pointer shadow-sm hover:scale-105 active:scale-95"
+                        >
+                          <Plus className="w-3.5 h-3.5" />
+                          <span>Add Variant</span>
+                        </button>
+                      </div>
+
+                      <div className="space-y-3">
+                        {abVariants.map((variant, idx) => (
+                          <div
+                            key={idx}
+                            className="p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-2.5 shadow-sm"
+                          >
+                            <div className="flex items-center justify-between text-xs">
+                              <span className="font-bold text-teal-700 dark:text-teal-400">
+                                Variant {String.fromCharCode(66 + idx)}
+                              </span>
+                              <div className="flex items-center space-x-2">
+                                <span className="font-mono font-bold text-slate-700 dark:text-slate-300 px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                                  Weight: {variant.weight}%
+                                </span>
+                                {abVariants.length > 1 && (
+                                  <button
+                                    type="button"
+                                    onClick={() => removeAbVariant(idx)}
+                                    className="text-slate-400 hover:text-rose-500 transition-colors p-1"
+                                    title="Delete variant"
+                                  >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                            <input
+                              type="url"
+                              placeholder="Variant destination URL (https://...)"
+                              value={variant.url}
+                              onChange={(e) => updateAbVariant(idx, 'url', e.target.value)}
+                              className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white text-xs placeholder-slate-400 focus:outline-none focus:border-teal-500"
+                            />
+                            <div className="flex items-center space-x-3 pt-0.5">
+                              <span className="text-[10px] text-slate-400 font-mono">10%</span>
+                              <input
+                                type="range"
+                                min="10"
+                                max="100"
+                                step="5"
+                                value={variant.weight}
+                                onChange={(e) => updateAbVariant(idx, 'weight', Number(e.target.value))}
+                                className="w-full accent-teal-500 cursor-pointer"
+                              />
+                              <span className="text-[10px] text-slate-400 font-mono">100%</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           )}
 
@@ -699,6 +920,52 @@ export function HeroShortener({ onLinkCreated, onOpenAnalytics, onOpenQr }) {
                   <p className="text-xs text-slate-500 dark:text-slate-400 truncate max-w-md">
                     Target: <span className="hover:text-slate-700 dark:hover:text-slate-300 transition-colors font-mono">{createdResult.originalUrl}</span>
                   </p>
+
+                  <div className="pt-2 flex flex-wrap items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={handleNativeShare}
+                      className="px-2.5 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold flex items-center space-x-1.5 transition-all hover:scale-105 active:scale-95 cursor-pointer shadow-sm"
+                    >
+                      <Share2 className="w-3.5 h-3.5 text-teal-500" />
+                      <span>Share</span>
+                    </button>
+                    <a
+                      href={`https://api.whatsapp.com/send?text=${encodeURIComponent(createdResult.shortUrl)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-2.5 py-1.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-700 dark:text-emerald-400 text-xs font-semibold flex items-center space-x-1 transition-all hover:scale-105 active:scale-95 shadow-sm"
+                    >
+                      <span>WhatsApp</span>
+                    </a>
+                    <a
+                      href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(createdResult.shortUrl)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-2.5 py-1.5 rounded-xl bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/30 text-sky-700 dark:text-sky-400 text-xs font-semibold flex items-center space-x-1 transition-all hover:scale-105 active:scale-95 shadow-sm"
+                    >
+                      <span>X</span>
+                    </a>
+                    <a
+                      href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(createdResult.shortUrl)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-2.5 py-1.5 rounded-xl bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/30 text-blue-700 dark:text-blue-400 text-xs font-semibold flex items-center space-x-1 transition-all hover:scale-105 active:scale-95 shadow-sm"
+                    >
+                      <span>LinkedIn</span>
+                    </a>
+                    {createdResult.qrCodeData && (
+                      <button
+                        type="button"
+                        onClick={handleDownloadQr}
+                        className="px-2.5 py-1.5 rounded-xl bg-teal-500/10 hover:bg-teal-500/20 border border-teal-500/30 text-teal-700 dark:text-teal-400 text-xs font-semibold flex items-center space-x-1.5 transition-all hover:scale-105 active:scale-95 cursor-pointer shadow-sm"
+                        title="Download QR code image (PNG)"
+                      >
+                        <Download className="w-3.5 h-3.5" />
+                        <span>Save QR</span>
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
 

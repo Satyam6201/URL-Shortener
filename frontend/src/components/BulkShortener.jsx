@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { api } from '../services/api.js';
 import { useAuth } from '../context/AuthContext.jsx';
+import { useToast } from '../context/ToastContext.jsx';
 import {
   Files,
   Upload,
@@ -18,6 +19,7 @@ import {
 
 export function BulkShortener({ onOpenAnalytics, onOpenQr }) {
   const { refreshQuota } = useAuth();
+  const toast = useToast();
   const [inputMode, setInputMode] = useState('text');
   const [urlsText, setUrlsText] = useState('');
   const [category, setCategory] = useState('General');
@@ -42,8 +44,10 @@ export function BulkShortener({ onOpenAnalytics, onOpenQr }) {
 
       if (lines.length > 0) {
         setUrlsText(lines.join('\n'));
+        toast.info(`Loaded ${lines.length} URLs from ${file.name}`);
       } else {
         setError('No valid URLs found in file. Ensure each line begins with http:// or https://');
+        toast.error('No valid URLs found in file');
       }
     };
     reader.readAsText(file);
@@ -93,9 +97,11 @@ export function BulkShortener({ onOpenAnalytics, onOpenQr }) {
       if (res.success) {
         setResults(res.data);
         await refreshQuota();
+        toast.success(`Successfully shortened ${res.data.length} links!`);
       }
     } catch (err) {
       setError(err.message || 'Bulk shortening request failed');
+      toast.error(err.message || 'Bulk shortening request failed');
     } finally {
       setLoading(false);
     }
@@ -104,6 +110,7 @@ export function BulkShortener({ onOpenAnalytics, onOpenQr }) {
   const handleCopySingle = (idx, text) => {
     navigator.clipboard.writeText(text);
     setCopiedIndex(idx);
+    toast.success('Link copied to clipboard!');
     setTimeout(() => setCopiedIndex(null), 2000);
   };
 
@@ -111,6 +118,7 @@ export function BulkShortener({ onOpenAnalytics, onOpenQr }) {
     const allLinks = results.map((r) => r.shortUrl).join('\n');
     navigator.clipboard.writeText(allLinks);
     setAllCopied(true);
+    toast.success(`Copied ${results.length} links to clipboard!`);
     setTimeout(() => setAllCopied(false), 2000);
   };
 
@@ -128,6 +136,7 @@ export function BulkShortener({ onOpenAnalytics, onOpenQr }) {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    toast.success('Exported bulk links CSV!');
   };
 
   return (
