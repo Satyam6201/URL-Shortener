@@ -157,6 +157,7 @@ export async function getUrlAnalytics(req, res, next) {
         devices,
         browsers,
         referrers,
+        abTest: urlDoc.abTest,
         aiInsights,
       },
     });

@@ -9,6 +9,7 @@ import {
   Compass,
   TrendingUp,
   Download,
+  Shuffle,
 } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -167,6 +168,54 @@ export function AnalyticsModal({ shortCode, onClose }) {
                 </div>
               </div>
             </div>
+
+            {data?.abTest?.isEnabled && data?.abTest?.variants?.length > 0 && (
+              <div className="p-5 rounded-2xl bg-gradient-to-r from-teal-500/10 via-emerald-500/5 to-cyan-500/10 border border-teal-500/30 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2 text-sm font-bold text-slate-900 dark:text-white">
+                    <Shuffle className="w-4 h-4 text-teal-500" />
+                    <span>A/B Split Testing Conversion Performance</span>
+                  </div>
+                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-teal-500/20 text-teal-700 dark:text-teal-300 border border-teal-500/30">
+                    Active Experiment
+                  </span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {data.abTest.variants.map((variant, idx) => {
+                    const variantClicks = variant.clicks || 0;
+                    const totalVariantClicks = data.abTest.variants.reduce((acc, v) => acc + (v.clicks || 0), 0) || 1;
+                    const splitPct = Math.round((variantClicks / totalVariantClicks) * 100);
+                    return (
+                      <div
+                        key={idx}
+                        className="p-3.5 rounded-xl bg-white/90 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 space-y-2"
+                      >
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="font-bold text-teal-700 dark:text-teal-400">
+                            Variant {String.fromCharCode(65 + idx)}
+                          </span>
+                          <div className="flex items-center space-x-2">
+                            <span className="text-slate-500 text-[11px]">Weight: {variant.weight}%</span>
+                            <span className="font-mono font-bold text-slate-900 dark:text-white">
+                              {variantClicks} clicks ({splitPct}%)
+                            </span>
+                          </div>
+                        </div>
+                        <p className="text-[11px] text-slate-600 dark:text-slate-400 truncate font-mono">
+                          {variant.url}
+                        </p>
+                        <div className="w-full bg-slate-200 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-teal-500 rounded-full transition-all duration-300"
+                            style={{ width: `${splitPct}%` }}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             <div className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-3">
               <div className="flex items-center justify-between text-sm font-bold text-slate-900 dark:text-white">
