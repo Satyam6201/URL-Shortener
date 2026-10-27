@@ -39,6 +39,8 @@ export default {
         'pulse-slow': 'pulseSlow 3s ease-in-out infinite',
         'glow-pulse': 'glowPulse 3s ease-in-out infinite',
         'shimmer': 'shimmer 2.5s infinite linear',
+        'shine': 'shine 3.5s ease-in-out infinite',
+        'bounce-subtle': 'bounceSubtle 2.5s ease-in-out infinite',
         'radar-sweep': 'radarSweep 4s linear infinite',
         'aurora': 'aurora 15s ease infinite alternate',
       },
@@ -63,6 +65,10 @@ export default {
           '0%, 100%': { transform: 'translateY(0) scale(1)' },
           '50%': { transform: 'translateY(-8px) scale(1.02)' },
         },
+        bounceSubtle: {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-4px)' },
+        },
         pulseSlow: {
           '0%, 100%': { opacity: '1' },
           '50%': { opacity: '0.4' },
@@ -74,6 +80,10 @@ export default {
         shimmer: {
           '0%': { backgroundPosition: '-200% 0' },
           '100%': { backgroundPosition: '200% 0' },
+        },
+        shine: {
+          '0%': { backgroundPosition: '200% 0' },
+          '100%': { backgroundPosition: '-200% 0' },
         },
         radarSweep: {
           '0%': { transform: 'rotate(0deg)' },
