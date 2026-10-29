@@ -101,7 +101,6 @@ export async function getClickCounter(shortCode) {
 
 export async function checkRateLimit(key, maxRequests, windowSeconds) {
   if (!isRedisAvailable()) {
-
     return { allowed: true, remaining: maxRequests, retryAfter: 0, total: 1 };
   }
 
@@ -151,7 +150,6 @@ export async function checkDailyQuota(identifier, maxQuota) {
     const current = await redis.incr(quotaKey);
 
     if (current === 1) {
-
       await redis.expire(quotaKey, 86400);
     }
 

@@ -33,6 +33,5 @@ export function decodeBase62(str) {
 }
 
 export function isValidSlug(str) {
-
   return /^[a-zA-Z0-9_-]{2,50}$/.test(str);
 }

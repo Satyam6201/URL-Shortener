@@ -7,7 +7,6 @@ export function hashIp(ip) {
 }
 
 export function lookupGeo(ip, headers = {}) {
-
   if (headers['cf-ipcountry'] && headers['cf-ipcountry'] !== 'XX') {
     return {
       country: headers['cf-ipcountry'],

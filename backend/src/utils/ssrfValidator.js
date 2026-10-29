@@ -45,25 +45,13 @@ export function isPrivateIPv4(ip) {
   const parts = ip.split('.').map(Number);
   if (parts.length !== 4 || parts.some(isNaN)) return true;
 
-  const [a, b, c, d] = parts;
-
-  if (a === 0) return true;
-
-  if (a === 10) return true;
-
-  if (a === 127) return true;
-
+  const [a, b] = parts;
+  if (a === 0 || a === 10 || a === 127 || a >= 224) return true;
   if (a === 169 && b === 254) return true;
-
   if (a === 172 && b >= 16 && b <= 31) return true;
-
   if (a === 192 && b === 168) return true;
-
   if (a === 100 && b >= 64 && b <= 127) return true;
-
   if (a === 198 && (b === 18 || b === 19)) return true;
-
-  if (a >= 224) return true;
 
   return false;
 }
@@ -130,7 +118,6 @@ export async function validateUrlSecurity(urlString) {
       }
     }
   } catch (dnsErr) {
-
     if (process.env.NODE_ENV !== 'test') {
       return { isValid: false, reason: `Unable to resolve hostname: ${hostname}` };
     }

@@ -4,7 +4,6 @@ import { rateLimitHitsCounter } from './metrics.js';
 
 export function createRateLimiter({ max = 60, windowSeconds = 60, keyPrefix = 'api' } = {}) {
   return async (req, res, next) => {
-
     const clientIdentifier = req.user ? `user:${req.user._id}` : `ip:${req.ip || req.socket.remoteAddress}`;
     const rateKey = `${keyPrefix}:${clientIdentifier}`;
 
